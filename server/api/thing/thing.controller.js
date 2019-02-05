@@ -61,9 +61,10 @@ function handleError(res, statusCode) {
 
 // Gets a list of Things
 export function index(req, res) {
-    return Thing.findAll()
-        .then(respondWithResult(res))
-        .catch(handleError(res));
+    // return Thing.findAll()
+    //     .then(respondWithResult(res))
+    //     .catch(handleError(res));
+    res.status(200).json('this is test');
 }
 
 // Gets a single Thing from the DB
