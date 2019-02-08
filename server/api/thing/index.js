@@ -3,7 +3,7 @@ var controller = require('./thing.controller');
 
 var router = express.Router();
 
-router.get('/', controller.index);
+router.get('/:type', controller.index);
 router.get('/:id', controller.show);
 router.post('/', controller.create);
 router.put('/:id', controller.upsert);
