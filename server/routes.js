@@ -7,9 +7,13 @@ import path from 'path';
 
 export default function(app) {
     // Insert routes below
-    app.use('/api/things', require('./api/thing'));
-    app.use('/api/users', require('./api/user'));
+    app.use('/api/login', require('./api/login'));
+    app.use('/api/register', require('./api/register'));
+    app.use('/api/role', require('./api/rolemgm'));
+    app.use('/api/user', require('./api/user'));
     app.use('/auth', require('./auth').default);
+    app.use('/api/things', require('./api/thing'));
+    app.use('/api/logout', require('./api/logout'));
 
     // All undefined asset or api routes should return a 404
     app.route('/:url(api|auth|components|app|bower_components|assets)/*')

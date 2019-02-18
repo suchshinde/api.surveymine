@@ -13,7 +13,7 @@ var fcm = require('fcm-notification');
 let path = require('../locationtracker-13f62-firebase-adminsdk-sie5v-8488f77387');
 var FCM = new fcm(path);
 var token = 'ejY5AU1c9oM:APA91bFwfcJbK-vRs9zNkHtM0uFFt1nbAwQ0QP8siqqeT2PO1Tctx5_mVgnm9NNX1MpVCsYlnDwkqE6FJq8pXU6MCpWshT3eKxda7LZyhJL655EINxqkzTxIyM0xHH4B-VEfo-mjBx6Z';
-
+let localStorage;
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
     return function(entity) {
@@ -64,39 +64,41 @@ function handleError(res, statusCode) {
 
 // Gets a list of Things
 export function index(req, res) {
-    // return Thing.findAll()
-    //     .then(respondWithResult(res))
-    //     .catch(handleError(res));
+      Thing.findAll()
+        .then(response=>{})
+         .catch(handleError(res));
     let type = req.params.type;
     console.log(type);
     sendTemplateNotification(type);
     res.status(200).json('this is test');
 }
 function sendTemplateNotification(type) {
+    let tk = localStorage.getItem('token');
+    console.log('tk',tk)
     var message = {
         notification: {
             title: 'Title of notification',
             body: 'Body of notification'
         },
-        token
+        token: tk
     };
     let ID = Math.floor(Math.random() * Math.floor(5000));
     if(type === 'create') {
         message.data = { //This is only optional, you can send any data
-
             message: ' {'
-                + '        "msg": "You have assigned to newly Created Survey. Id :-' + ID + '",'
+                + '        "msg": "You have assigned to newly Created Survey. Id :' + ID + '",'
                 + '        "josnTemplate": "jsonString"'
                 + '    }'
         };
     } else if(type === 'update') {
         message.data = {
             message: ' {'
-                + '"msg": "Servey is updated Please update to new version. Id :-' + ID + '",'
+                + '"msg": "Survey is updated Please update to new version. Id :-' + ID + '",'
                 + '"josnTemplate": "jsonString"'
                 + '}'
         };
     }
+    console.log('message',message)
 
     FCM.send(message, function(err, response) {
         if(err) {
@@ -121,20 +123,17 @@ export function show(req, res) {
 
 // Creates a new Thing in the DB
 export function create(req, res) {
-    let localStorage;
-
+      Thing.create(req.body)
+        .then(response => {})
+        .catch(handleError(res));
     if(typeof localStorage === 'undefined' || localStorage === null) {
         var LocalStorage = require('node-localstorage').LocalStorage;
         localStorage = new LocalStorage('./scratch');
     }
-    localStorage.setItem('token', req.params.token);
+    localStorage.setItem('token', req.body.token);
     console.log(localStorage.getItem('token'));
+    res.status(200).json(`Token Saved :${req.body.token}`);
 
-    res.stautus(200).json(`Token Saved :${req.params.token}`);
-    //
-    // return Thing.create(req.body)
-    //     .then(respondWithResult(res, 201))
-    //     .catch(handleError(res));
 }
 
 // Upserts the given Thing in the DB at the specified ID

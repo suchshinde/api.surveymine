@@ -10,12 +10,9 @@ export default function seedDatabaseIfNeeded() {
     if(!config.seedDB) {
         return Promise.resolve();
     }
-
     let Thing = sqldb.Thing;
-    let User = sqldb.User;
-
+    let User = sqldb.User ;
     let promises = [];
-
     let thingPromise = Thing.destroy({ where: {} })
         .then(() => Thing.bulkCreate([{
             name: 'Development Tools',
@@ -43,22 +40,6 @@ export default function seedDatabaseIfNeeded() {
         .catch(err => console.log('error populating things', err));
     promises.push(thingPromise);
 
-    let userPromise = User.destroy({ where: {} })
-        .then(() => User.bulkCreate([{
-            provider: 'local',
-            name: 'Test User',
-            email: 'test@example.com',
-            password: 'test'
-        }, {
-            provider: 'local',
-            role: 'admin',
-            name: 'Admin',
-            email: 'admin@example.com',
-            password: 'admin'
-        }])
-            .then(() => console.log('finished populating users'))
-            .catch(err => console.log('error populating users', err)));
-    promises.push(userPromise);
 
     return Promise.all(promises);
 }

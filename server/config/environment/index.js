@@ -23,6 +23,7 @@ const all = {
     DB_USERNAME: process.env.DB_USERNAME,
     DB_PASSWORD: process.env.DB_PASSWORD,
     DB_NAME: process.env.DB_NAME,
+    PORTAL_DB_NAME: process.env.PORTAL_DB_NAME,
 
     // Server IP
     IP: process.env.IP || '0.0.0.0',
