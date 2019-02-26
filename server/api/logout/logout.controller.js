@@ -44,7 +44,7 @@ export function forceLogout(req, res) {
         attributes: ['PM_Client_ID']
     })
         .then((clientID) => {
-            console.log('in auth',clientID)
+            console.log('in auth', clientID);
 
             if(clientID) {
                 redisClient.del(`${req.body.mobileNo}login${clientID.PM_Client_ID}`, (err) => {
@@ -72,6 +72,7 @@ export function forceLogout(req, res) {
                         msg: 'logout session',
                         error: err,
                     });
+                    console.log('error', err);
                 });
         });
 }

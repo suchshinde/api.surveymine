@@ -35,5 +35,7 @@ db.Menu = db.sequelize.import('../api/rolemgm/menu.model');
 db.LoginSession = db.sequelize.import('../api/login/loginsession.model');
 db.Resource = db.sequelize.import('../api/resource/resource.model');
 db.Register = db.sequelize.import('../api/register/clientregister.model');
+db.Surveys = db.sequelize.import('../api/survey/survey.model');
+
 
 module.exports = db;
