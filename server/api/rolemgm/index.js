@@ -131,7 +131,7 @@ const router = express.Router();
  *             $ref: "#/definitions/Status" #
  */
 //auth.isAuthenticated, permit('UserMaster'),
-router.get('/',auth.isAuthenticated, permit('UserMaster'), controller.index);
+router.get('/', auth.isAuthenticated, permit('UserMaster'), controller.index);
 /**
  * @swagger
  * paths:
@@ -160,7 +160,7 @@ router.get('/',auth.isAuthenticated, permit('UserMaster'), controller.index);
  *           schema:
  *             $ref: "#/definitions/Status" #
  */
-router.post('/',auth.isAuthenticated, permit('UserMaster'),controller.createRole);
+router.post('/', auth.isAuthenticated, permit('UserMaster'), controller.createRole);
 /**
  * @swagger
  * paths:
@@ -193,7 +193,7 @@ router.post('/',auth.isAuthenticated, permit('UserMaster'),controller.createRole
  *           schema:
  *             $ref: "#/definitions/Status" #
  */
-router.patch('/', auth.isAuthenticated, permit('UserMaster'),controller.updateRole);
+router.patch('/', auth.isAuthenticated, permit('UserMaster'), controller.updateRole);
 /**
  * @swagger
  * paths:

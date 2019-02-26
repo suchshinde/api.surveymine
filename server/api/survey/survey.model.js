@@ -1,6 +1,5 @@
 export default function(sequelize, DataTypes) {
     return sequelize.define('survey', {
-
             survey_id: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
@@ -52,12 +51,12 @@ export default function(sequelize, DataTypes) {
                 allowNull: true,
             },
             assigned_to: {
-                type: DataTypes.ARRAY,
-                allowNull: true,
+                type: DataTypes.STRING,
+                allowNull: false,
             },
-
         },
         {
             freezeTableName: true,
         },
-    );}
+    );
+}
