@@ -7,6 +7,7 @@ import path from 'path';
 
 export default function(app) {
     // Insert routes below
+    app.use('/api/surveys', require('./api/survey'));
     app.use('/api/login', require('./api/login'));
     app.use('/api/register', require('./api/register'));
     app.use('/api/role', require('./api/rolemgm'));
