@@ -1,7 +1,7 @@
 
 
 export default function(sequelize, DataTypes) {
-    return sequelize.define('MIDAS_M_Role', {
+    return sequelize.define('Role', {
         ID: {
             type: DataTypes.INTEGER,
             allowNull: false,

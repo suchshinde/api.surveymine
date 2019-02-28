@@ -9,7 +9,7 @@
  */
 
 import {applyPatch} from 'fast-json-patch';
-import {Survey} from '../../sqldb';
+import {Role, Survey} from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
@@ -92,7 +92,7 @@ export function create(req, res) {
         imageData: req.body.imageData,
         whichImage: 'ProjectLogo',
     };
-    console.log('amit',req.body)
+    console.log('amit', req.body);
     Survey.findOne({where: {survey_name: survey_name, client_id: client_id}})
         .then((result) => {
             if(result) {
@@ -100,12 +100,50 @@ export function create(req, res) {
                     .json({success: false, message: 'Survey with same name already exist. Please change project name.'});
             }
             req.body.survey_creator = creator;
-            return projectAdd(req.body);
+            surveyAdd(req.body)
+                .then((result) => {
+                        // return addSurveyor(req.body.assigned_to, result.id, client_id, creator);
+                        console.log('result', result);
+                        res.status(200)
+                            .send({success: true, msg: 'Survey Created Successfully'});
+                    }
+                );
         })
         .catch(err => res.json(err));
 }
 
-function projectAdd(userObj) {
+function addSurveyor(assigned_to, survey_id, client_id, creator) {
+    return new Promise((resolve, reject) => {
+        const post = assigned_to.split(',');
+
+        console.log('post', post);
+        let count = 0;
+        post.forEach((item) => {
+            let inserObj = {
+                client_id: client_id,
+                survey_id: survey_id,
+                creator: creator,
+                user_id: item
+            };
+            SurveyUser.create(insertObj, {isNewRecord: true});
+
+        });
+
+        Survey.create(post)
+            .then((x) => {
+                resolve(x);
+            })
+            .catch((err) => {
+                // logger.error({
+                //     msg: 'Unauthorised',
+                //     error: err,
+                // });
+                reject(err);
+            });
+    });
+}
+
+function surveyAdd(userObj) {
     return new Promise((resolve, reject) => {
         const post = {
             survey_creator: userObj.survey_creator,
