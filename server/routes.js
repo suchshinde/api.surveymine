@@ -14,7 +14,7 @@ export default function(app) {
     app.use('/api/role', require('./api/rolemgm'));
     app.use('/api/user', require('./api/user'));
     app.use('/auth', require('./auth').default);
-    app.use('/api/things', require('./api/thing'));
+    /*app.use('/api/things', require('./api/thing'));*/
     app.use('/api/logout', require('./api/logout'));
 
     // All undefined asset or api routes should return a 404
