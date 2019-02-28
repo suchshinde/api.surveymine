@@ -36,7 +36,7 @@ module.exports = function makeWebpackConfig(options) {
      * Should be an empty object if it's generating a test build
      * Karma will set this when it's a test build
      */
-    if(!TEST) {
+   /* if(!TEST) {
         config.entry = {
             app: './client/app/app.js',
             polyfills: './client/app/polyfills.js',
@@ -44,7 +44,7 @@ module.exports = function makeWebpackConfig(options) {
                 'lodash'
             ]
         };
-    }
+    }*/
 
     /**
      * Output
@@ -236,10 +236,10 @@ module.exports = function makeWebpackConfig(options) {
      */
     config.plugins = [
         // Hides the 'the request of a dependency is an expression' warnings
-        new webpack.ContextReplacementPlugin(
+        /*new webpack.ContextReplacementPlugin(
             /angular(\\|\/)core/,
-            path.resolve(__dirname, '../src')
-        ),
+            //path.resolve(__dirname, '../src')
+        ),*/
 
         new webpack.LoaderOptionsPlugin({
             options: {
@@ -276,7 +276,7 @@ module.exports = function makeWebpackConfig(options) {
     // Skip rendering app.html in test mode
     // Reference: https://github.com/ampedandwired/html-webpack-plugin
     // Render app.html
-    if(!TEST) {
+   /* if(!TEST) {
         config.plugins.push(
             new HtmlWebpackPlugin({
                 template: 'client/app.template.html',
@@ -285,7 +285,7 @@ module.exports = function makeWebpackConfig(options) {
             }),
             new HtmlWebpackHarddiskPlugin(),
         );
-    }
+    }*/
 
     let localEnv;
     try {
