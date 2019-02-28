@@ -1926,17 +1926,17 @@ export function getUniqueUser(req, res) {
 
 export function createNewUser(req, res) {
     const add = {
-        PM_Client_ID: '1', //req.authData.PM_Client_ID,
-        PM_Domain: 'amit1', //req.authData.PM_Domain,
+        PM_Client_ID: req.authData.PM_Client_ID,
+        PM_Domain: req.authData.PM_Domain,
         PM_User_Status: false,
         PM_User_Active: true,
         PM_FirstLogin: 1,
         PM_User_DateofRegistration: new Date(),
-        PM_Domain_ID: '1', //req.authData.PM_Domain_ID,
+        PM_Domain_ID: req.authData.PM_Domain_ID,
     };
     const userAdd = extend({}, add, req.body);
     const bodyForImage = {
-        PM_Client_ID: '1', //req.authData.PM_Client_ID,
+        PM_Client_ID: req.authData.PM_Client_ID,
         imageData: req.body.PM_User_ProfilePic,
         whichImage: 'User_PP',
     };
@@ -1983,17 +1983,13 @@ export function createNewUser(req, res) {
                                 userRoleObj.userID = user.PM_UserID;
                                 userRoleObj.roleID = roleID;
                                 userRoleObj.status = 1;
-                                req.authData.PM_User_Email_ID = 'amit.g@mobinexttech.com';
-                                req.authData.PM_User_FullName = 'Amit';
-                                req.authData.PM_User_MobileNumber = '9403384895';
-                                req.authData.PM_Domain='amit1'
                                 UserRole.create(userRoleObj)
                                     .then((s) => {
                                         if(index1 === roleList.length - 1) {
                                             req.body.PM_UserID = user.PM_UserID;
                                             const bodyWelcome = {
-                                                clientId: '1', //req.authData.PM_Client_ID,
-                                                senderId: '1', // req.authData.PM_UserID,
+                                                clientId:  req.authData.PM_Client_ID,
+                                                senderId:   req.authData.PM_UserID,
                                                 senderEmail: req.authData.PM_User_Email_ID,
                                                 senderMobile: req.authData.PM_User_MobileNumber,
                                                 messageType: 'newUserAdded',

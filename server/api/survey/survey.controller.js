@@ -146,12 +146,17 @@ function addSurveyor(assigned_to, survey_id, client_id, creator) {
 function surveyAdd(userObj) {
     return new Promise((resolve, reject) => {
         const post = {
-            survey_creator: userObj.survey_creator,
             client_id: userObj.client_id,
+            version_id: userObj.version_id,
             survey_name: userObj.survey_name,
-            survey_status: 'Created',
-            survey_type: userObj.survey_type,
+            survey_template: userObj.survey_template,
+            survey_creator: userObj.survey_creator,
+            survey_created_at: new Date().getDate(),
             survey_description: userObj.survey_description,
+            survey_type: userObj.survey_type,
+            assigned_to: userObj.assigned_to,
+            survey_status: 'Created',
+
         };
         console.log('12324', post);
         Survey.create(post)

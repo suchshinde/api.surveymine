@@ -6,17 +6,9 @@ const auth = require('../../auth/auth.service');
 
 
 const router = express.Router();
-// auth.isAuthenticated, permit('UserMaster'),
-router.get('/', controller.show);//  get all user
-//router.get('/getManagerUsers', auth.isAuthenticated, controller.getManagerUsers);
-// auth.isAuthenticated,
-router.get('/:id', controller.getUser);// user/get
-// auth.isAuthenticated, permit('UserMaster'),
-router.post('/update', controller.update);//  update user
-// router.post('/', auth.isAuthenticated, controller.create);//  add user
-router.post('/', controller.createNewUser);// auth.isAuthenticated, permit('UserMaster'),  add user
-auth.isAuthenticated,
-router.get('/r/role', controller.role);//  get all user
-// router.get('/resource/:projectId', auth.isAuthenticated, controller.getOnlyResources);
-//router.post('/getUniqueUser', auth.isAuthenticated, controller.getUniqueUser);
+router.get('/', auth.isAuthenticated, permit('UserMaster'), controller.show);//  get all user
+router.get('/:id', auth.isAuthenticated, controller.getUser);// user/get
+router.post('/update', auth.isAuthenticated, permit('UserMaster'), controller.update);//  update user
+router.post('/', auth.isAuthenticated, permit('UserMaster'), controller.createNewUser);// auth.isAuthenticated, permit('UserMaster'),  add user
+router.get('/r/role', auth.isAuthenticated, controller.role);//  get all user
 module.exports = router;
