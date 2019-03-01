@@ -47,7 +47,12 @@ export default function(app) {
     app.use(methodOverride());
     app.use(cookieParser());
     app.use(passport.initialize());
-
+    app.use((req, res, next) => {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Headers', '*');
+        res.header('Access-Control-Expose-Headers', 'Authorization');
+        next();
+    });
 
     // Persist sessions with MongoStore / sequelizeStore
     // We need to enable sessions for passport-twitter because it's an
