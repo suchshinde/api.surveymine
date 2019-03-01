@@ -1972,14 +1972,13 @@ export function createNewUser(req, res) {
                     .spread((user, created) => {
                         console.log('insertInto', userAdd);
                         console.log('insertIntosssss', user, created);
-                        req.authData={};
                         if(created) {
                             const roleList = userAdd.PM_User_Role.split(',');
                             console.log('roleList', roleList);
                             roleList.forEach((roleID, index1) => {
                                 console.log('roleID', roleID);
                                 const userRoleObj = {};
-                                userRoleObj.clientID = '1', //req.authData.PM_Client_ID;
+                                userRoleObj.clientID = req.authData.PM_Client_ID;
                                 userRoleObj.userID = user.PM_UserID;
                                 userRoleObj.roleID = roleID;
                                 userRoleObj.status = 1;
