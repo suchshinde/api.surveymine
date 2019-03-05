@@ -7,9 +7,9 @@
  * PATCH   /api/surveys/:id          ->  patch
  * DELETE  /api/surveys/:id          ->  destroy
  */
-
+import {logger} from '../../components/logger';
 import {applyPatch} from 'fast-json-patch';
-import {Role, Survey} from '../../sqldb';
+import {Role, Survey, SurveyUser} from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
@@ -100,47 +100,52 @@ export function create(req, res) {
                 return res.status(400)
                     .json({success: false, message: 'Survey with same name already exist. Please change project name.'});
             }
-            req.body.survey_creator = creator;
-            surveyAdd(req.body, client_id)
-                .then((result) => {
-                        // return addSurveyor(req.body.assigned_to, result.id, client_id, creator);
-                        console.log('result', result);
-                        res.status(200)
-                            .send({success: true, msg: 'Survey Created Successfully'});
-                    }
-                );
+            req.body.created_by = creator;
+            return surveyAdd(req.body, client_id);
         })
-        .catch(err => res.json(err));
+        .then((result) => {
+            addSurveyor(req.body.assigned_to, result, client_id, creator);
+        })
+        .then(() => {
+            res.status(200)
+                .send({success: true, msg: 'Survey Created Successfully'});
+        })
+        .catch(err => {
+            res.status(400)
+                .send({success: true, msg: err});
+        });
 }
 
-function addSurveyor(assigned_to, survey_id, client_id, creator) {
+function addSurveyor(assigned_to, survey, client_id, creator) {
     return new Promise((resolve, reject) => {
         const post = assigned_to.split(',');
-
-        console.log('post', post);
+        console.log('assigned_to', post);
         let count = 0;
         post.forEach((item) => {
-            let inserObj = {
+            let insertObj = {
                 client_id: client_id,
-                survey_id: survey_id,
+                survey_id: survey.survey_id,
                 creator: creator,
-                user_id: item
+                user_id: item,
             };
-            SurveyUser.create(insertObj, {isNewRecord: true});
-
+            console.log('insertObj', insertObj);
+            SurveyUser.create(insertObj, {isNewRecord: true})
+                .then((x) => {
+                    console.log('count', count);
+                    count++;
+                    if(count === post.length) {
+                        console.log('saved user srvue ', count);
+                        resolve(x);
+                    }
+                })
+                .catch((err) => {
+                    logger.error({
+                        msg: 'Unauthorised',
+                        error: err,
+                    });
+                    reject(err);
+                });
         });
-
-        Survey.create(post)
-            .then((x) => {
-                resolve(x);
-            })
-            .catch((err) => {
-                // logger.error({
-                //     msg: 'Unauthorised',
-                //     error: err,
-                // });
-                reject(err);
-            });
     });
 }
 
@@ -148,28 +153,30 @@ function surveyAdd(userObj, client_id) {
     return new Promise((resolve, reject) => {
         const post = {
             client_id: client_id,
+            client_logo: userObj.client_logo,
             version_id: userObj.version_id,
             survey_name: userObj.survey_name,
+            survey_id: userObj.survey_id,
             survey_template: userObj.survey_template,
-            survey_creator: userObj.survey_creator,
-            survey_created_at: new Date().getDate(),
+            survey_url: userObj.survey_url,
+            created_by: userObj.created_by,
+            survey_created_at: new Date().toString(),
             survey_description: userObj.survey_description,
             survey_type: userObj.survey_type,
             assigned_to: userObj.assigned_to,
             survey_status: 'Created',
-
         };
-        console.log('12324', post);
+
         Survey.create(post)
             .then((x) => {
-                console.log('dasdasd', x);
+
                 resolve(x);
             })
             .catch((err) => {
-                // logger.error({
-                //     msg: 'Unauthorised',
-                //     error: err,
-                // });
+                logger.error({
+                    msg: 'Unauthorised',
+                    error: err,
+                });
                 reject(err);
             });
     });

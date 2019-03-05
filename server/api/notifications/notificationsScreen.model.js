@@ -19,7 +19,7 @@ export default function (sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'PM_M_UserAccess',
+        model: 'UserAccess',
         key: 'PM_UserID',
       },
     },
