@@ -35,9 +35,13 @@ db.Menu = db.sequelize.import('../api/rolemgm/menu.model');
 db.LoginSession = db.sequelize.import('../api/login/loginsession.model');
 db.Resource = db.sequelize.import('../api/resource/resource.model');
 db.Register = db.sequelize.import('../api/register/clientregister.model');
-db.Surveys = db.sequelize.import('../api/survey/survey.model');
+db.Survey = db.sequelize.import('../api/survey/survey.model');
 db.SurveyUser = db.sequelize.import('../api/survey-user/survey-user.model')
+db.NotificationsEmailSms = db.sequelize.import('../api/notifications/notificationsEmailSMS.model');
+db.NotificationsScreen = db.sequelize.import('../api/notifications/notificationsScreen.model');
+db.NotificationsTemplates = db.sequelize.import('../api/notifications/notificationsTemplates.model');
+db.PermissionNotify = db.sequelize.import('../api/notifications/permissionNotify.model');
 
-db.SurveyUser.hasMany(db.Surveys, { as: 'UserOrders', foreignKey: 'ORDER_CLIENT_ID' });
+db.SurveyUser.hasMany(db.Survey, { as: 'UserOrders', foreignKey: 'ORDER_CLIENT_ID' });
 
 module.exports = db;

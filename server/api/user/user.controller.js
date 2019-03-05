@@ -20,7 +20,7 @@ import {
     resourceRole,
 } from '../../sqldb';
 import {RegisterClient, Subscription} from '../../sqldb/portal.db';
-//import { saveEmailSmsBacked, saveScreenBackend, createBodyAndSendNotification } from '../notifications/notifications.controller';
+import { saveEmailSmsBacked, saveScreenBackend, createBodyAndSendNotification } from '../notifications/notifications.controller';
 //import { showDetailsProject } from '../project/project.controller';
 //import { getImageUrl, saveImageBackEnd, getSingleImage } from '../imageManagement/imageManagement.controller';
 
@@ -242,7 +242,7 @@ export function show(req, res) {
         order: [
             ['PM_UserID', 'DESC'],
         ],
-        attributes: ['PM_UserID', 'PM_User_Email_ID', 'PM_User_MobileNumber', 'PM_User_Role',
+        attributes: ['PM_UserID', 'PM_User_Email_ID', 'PM_User_MobileNumber', 'PM_User_Role', 'PM_User_Active',
             'PM_User_Department', 'PM_User_FullName', 'PM_User_Address', 'PM_User_State', 'PM_User_District',
             'PM_User_Village', 'PM_User_Pincode', 'PM_Designation', 'PM_User_ProfilePic'],
         raw: true,
@@ -275,7 +275,9 @@ export function show(req, res) {
                 });
 
                 if(data && data.length > 0) {
-                    getImageUrl(res, data, 0, 'User_PP');
+                    //console.log('data', data);
+                    res.send(data);
+                    // getImageUrl(res, data, 0, 'User_PP');
                 } else {
                     res.send(data);
                 }
@@ -494,13 +496,13 @@ export function role(req, res) {
     //req.authData={};
     //req.authData.PM_Client_ID="1";
     Role.findAll({
-        where: {Status: 1, PM_Client_ID: req.authData.PM_Client_ID},
-        order: [
-            ['ID', 'DESC'],
-        ],
-        attributes: ['ID', 'Description'],
-        raw: true
-    },
+            where: {Status: 1, PM_Client_ID: req.authData.PM_Client_ID},
+            order: [
+                ['ID', 'DESC'],
+            ],
+            attributes: ['ID', 'Description'],
+            raw: true
+        },
     )
         .then((obj) => {
             res.json(obj);
@@ -1987,8 +1989,8 @@ export function createNewUser(req, res) {
                                         if(index1 === roleList.length - 1) {
                                             req.body.PM_UserID = user.PM_UserID;
                                             const bodyWelcome = {
-                                                clientId:  req.authData.PM_Client_ID,
-                                                senderId:   req.authData.PM_UserID,
+                                                clientId: req.authData.PM_Client_ID,
+                                                senderId: req.authData.PM_UserID,
                                                 senderEmail: req.authData.PM_User_Email_ID,
                                                 senderMobile: req.authData.PM_User_MobileNumber,
                                                 messageType: 'newUserAdded',
@@ -2004,49 +2006,49 @@ export function createNewUser(req, res) {
                                                     },
                                                 ],
                                             };
-                                            //  saveEmailSmsBacked(bodyWelcome);
-                                            //   createBodyAndSendNotification(req, 'screen', 'firstLoginWelcome')
-                                            //       .then(() => createBodyAndSendNotification(req, 'screen', 'firstLoginTips'))
-                                            //       .then(() => createBodyAndSendNotification(req, 'screen', 'firstLoginStartFirstProject'))
-                                            //       .then(() => {
-                                            //           console.log('OK');
-                                            //       })
-                                            //       .catch((e) => {
-                                            //           console.log('e e ', e);
-                                            //       });
+                                             saveEmailSmsBacked(bodyWelcome);
+                                            createBodyAndSendNotification(req, 'screen', 'firstLoginWelcome')
+                                                .then(() => createBodyAndSendNotification(req, 'screen', 'firstLoginTips'))
+                                                .then(() => createBodyAndSendNotification(req, 'screen', 'firstLoginStartFirstProject'))
+                                                .then(() => {
+                                                    console.log('OK');
+                                                })
+                                                .catch((e) => {
+                                                    console.log('e e ', e);
+                                                });
 
                                             if(bodyForImage.imageData) {
                                                 bodyForImage.PM_UserID = user.PM_UserID;
-                                                return saveImageBackEnd(bodyForImage)
+                                               /* by  amit return saveImageBackEnd(bodyForImage)
                                                     .then(() => res.send({
-                                                        success: true,
-                                                        msg: 'User Created Successfully',
-                                                    },
+                                                            success: true,
+                                                            msg: 'User Created Successfully',
+                                                        },
                                                     ))
                                                     .catch(() => res.send({
-                                                        success: true,
-                                                        msg: 'User Created Successfully',
-                                                    },
-                                                    ));
+                                                            success: true,
+                                                            msg: 'User Created Successfully',
+                                                        },
+                                                    ));*/
                                             }
                                             return res.send({
-                                                success: true,
-                                                msg: 'User Created Successfully',
-                                            },
+                                                    success: true,
+                                                    msg: 'User Created Successfully',
+                                                },
                                             );
                                         }
                                     });
                             });
                         } else {
                             res.send({
-                                success: false,
-                                msg: 'User already in your domain'
-                            },
+                                    success: false,
+                                    msg: 'User already in your domain'
+                                },
                             );
                         }
                     })
                     .catch((err) => {
-                        console.log(err)
+                        console.log(err);
                         res.json({
                             success: false,
                             msg: err.errors[0].message,

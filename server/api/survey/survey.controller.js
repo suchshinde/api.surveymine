@@ -84,15 +84,16 @@ export function show(req, res) {
 
 // Creates a new Survey in the DB
 export function create(req, res) {
-    const client_id = req.authData.client_id;
+    console.log(req.authData);
+    const client_id = req.authData.PM_Client_ID;
     const survey_name = req.body.survey_name;
-    const creator = req.authData.user_id;
+    const creator = req.authData.PM_UserID;
     const bodyForImage = {
-        client_id: req.authData.client_id,
+        client_id: req.authData.PM_Client_ID,
         imageData: req.body.imageData,
         whichImage: 'ProjectLogo',
     };
-    console.log('amit', req.body);
+    console.log('amit', req.body, client_id);
     Survey.findOne({where: {survey_name: survey_name, client_id: client_id}})
         .then((result) => {
             if(result) {
@@ -100,7 +101,7 @@ export function create(req, res) {
                     .json({success: false, message: 'Survey with same name already exist. Please change project name.'});
             }
             req.body.survey_creator = creator;
-            surveyAdd(req.body)
+            surveyAdd(req.body, client_id)
                 .then((result) => {
                         // return addSurveyor(req.body.assigned_to, result.id, client_id, creator);
                         console.log('result', result);
@@ -143,10 +144,10 @@ function addSurveyor(assigned_to, survey_id, client_id, creator) {
     });
 }
 
-function surveyAdd(userObj) {
+function surveyAdd(userObj, client_id) {
     return new Promise((resolve, reject) => {
         const post = {
-            client_id: userObj.client_id,
+            client_id: client_id,
             version_id: userObj.version_id,
             survey_name: userObj.survey_name,
             survey_template: userObj.survey_template,
@@ -161,6 +162,7 @@ function surveyAdd(userObj) {
         console.log('12324', post);
         Survey.create(post)
             .then((x) => {
+                console.log('dasdasd', x);
                 resolve(x);
             })
             .catch((err) => {

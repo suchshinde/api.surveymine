@@ -1,0 +1,1 @@
+Welcome {{param0}} {{param1}} , PMS Screen Notification
