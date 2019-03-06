@@ -1999,10 +1999,11 @@ export function createNewUser(req, res) {
                                                 recipientsAndData: [
                                                     {
                                                         email: userAdd.PM_User_Email_ID,
-                                                        // mob: userAdd.PM_User_MobileNumber,
+                                                        mob: userAdd.PM_User_MobileNumber,
                                                         data: `${userAdd.PM_User_FullName}|${req.authData.PM_User_FullName}|${process.env.PROTOCOL}${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}|
-                          ${process.env.PROTOCOL}${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}${process.env.FORGOT_CREATE_PASSWORD_LINK}&&email=${userAdd.PM_User_Email_ID}&&mobile=${userAdd.PM_User_MobileNumber}|
+                          ${process.env.PROTOCOL}${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}${process.env.FORGOT_CREATE_PASSWORD_LINK}&&email=${userAdd.PM_User_Email_ID}&&fullname=${userAdd.PM_User_FullName}&&mobile=${userAdd.PM_User_MobileNumber}|
                           ${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}`,
+//for local                                                        //data: `${userAdd.PM_User_FullName}|${req.authData.PM_User_FullName}|http://localhost:8000|http://localhost:8000${process.env.FORGOT_CREATE_PASSWORD_LINK}email=${userAdd.PM_User_Email_ID}&&fullname=${userAdd.PM_User_FullName}&&mobile=${userAdd.PM_User_MobileNumber}|${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}`
                                                     },
                                                 ],
                                             };
