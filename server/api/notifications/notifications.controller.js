@@ -1228,23 +1228,28 @@ function sendMsgStart() {
         });
 }
 
-if (process.env.NODE_ENV === 'production') {
-  setInterval(() => {
-    if (process.env.pm_id === process.env.CLUSTER_ID) {
-      console.log('process.env.pm_id , CONFIG.cluster_id match --- ');
-      sendEmailStart();
-    } else {
-      console.log('process.env.pm_id , CONFIG.cluster_id not match --- ');
-    }
-  }, 20000);
-  setInterval(() => {
-    if (process.env.pm_id === process.env.CLUSTER_ID) {
-      console.log('process.env.pm_id , CONFIG.cluster_id match sms --- ');
-      sendMsgStart();
-    } else {
-      console.log('process.env.pm_id , CONFIG.cluster_id not match sms --- ');
-    }
-  }, 20000);
+//if (process.env.NODE_ENV === 'production')
+{
+    setInterval(() => {
+        //if (process.env.pm_id === process.env.CLUSTER_ID)
+        {
+            console.log('process.env.pm_id , CONFIG.cluster_id match --- ');
+            console.log(process.env.pm_id, ' :values: ', process.env.CLUSTER_ID);
+            sendEmailStart();
+        }
+        //else
+        {
+            console.log('process.env.pm_id , CONFIG.cluster_id not match --- ');
+        }
+    }, 20000);
+    setInterval(() => {
+        if(process.env.pm_id === process.env.CLUSTER_ID) {
+            console.log('process.env.pm_id , CONFIG.cluster_id match sms --- ');
+            sendMsgStart();
+        } else {
+            console.log('process.env.pm_id , CONFIG.cluster_id not match sms --- ');
+        }
+    }, 20000);
 }
 
 export function findM(req, res) {

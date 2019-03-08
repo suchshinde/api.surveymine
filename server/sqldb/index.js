@@ -64,6 +64,6 @@ db.Permission.hasMany(db.RolePermission, {as: 'Permission1', foreignKey: 'permis
 
 // db.RolePermission.belongsTo(db.Role, { as: 'Role3', foreignKey: 'roleID' });
 
-db.Survey.hasMany(db.SurveyUser, {as: 'UserSurvey', foreignKey: 'survey_id'});
+//db.Survey.hasMany(db.SurveyUser, {as: 'UserSurvey', foreignKey: 'survey_id'});
 
 module.exports = db;
