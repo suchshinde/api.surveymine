@@ -1,0 +1,7 @@
+// Survey States will be
+// - Draft
+// - Published
+// - Partial Response Received
+// - Complete Response Received
+// - Expired
+// - Deleted

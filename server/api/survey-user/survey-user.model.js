@@ -14,6 +14,10 @@ export default function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
+        version_id: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         creator: {
             type: DataTypes.INTEGER,
             allowNull: false,

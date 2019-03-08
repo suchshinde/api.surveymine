@@ -3,9 +3,12 @@ var controller = require('./survey.controller');
 const auth = require('../../auth/auth.service');
 var router = express.Router();
 
-router.get('/', auth.isAuthenticated, controller.index);
+router.get('/', auth.isAuthenticated, controller.getAllSurveyByUser);
 router.get('/:id', auth.isAuthenticated, controller.show);
-router.post('/', auth.isAuthenticated, controller.create);
+/* Publish New Survey*/
+router.post('/', auth.isAuthenticated, controller.createSurvey);
+/* Save Survey as Draft*/
+router.post('/', auth.isAuthenticated, controller.draftSurvey);
 router.put('/:id', auth.isAuthenticated, controller.upsert);
 router.patch('/:id', auth.isAuthenticated, controller.patch);
 router.delete('/:id', auth.isAuthenticated, controller.destroy);
