@@ -1,64 +1,64 @@
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
     return sequelize.define('Survey', {
-            id: {
+            Id: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true
             },
-            survey_id: {
+            surveyId: {
                 type: DataTypes.INTEGER,
                 allowNull: false
             },
-            client_id: {
+            clientId: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
-            version_id: {
+            versionId: {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            client_logo: {
+            clientLogo: {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            survey_name: {
+            surveyName: {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            survey_template: {
+            surveyTemplate: {
                 type: DataTypes.JSON,
                 allowNull: true,
             },
-            survey_url: {
+            surveyUrl: {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            created_by: {
+            createdBy: {
                 type: DataTypes.INTEGER,
                 allowNull: true,
             },
-            survey_created_at: {
+            surveyCreatedAt: {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            survey_description: {
+            surveyDescription: {
                 type: DataTypes.TEXT('long'),
                 allowNull: true,
             },
-            survey_type: {
+            surveyType: {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            survey_status: {
+            surveyStatus: {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            survey_updated_at: {
+            surveyUpdated_at: {
                 type: DataTypes.INTEGER,
                 allowNull: true,
             },
-            assigned_to: {
+            assignedTo: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },

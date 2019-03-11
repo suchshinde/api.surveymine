@@ -78,15 +78,15 @@ export function getAllSurveyByUser(req, res) {
             surveyResult.forEach((item) => {
                 Survey.findAll({
                     where: {
-                        survey_id: item.survey_id
+                        survey_id: item.surveyId
                     }
                 })
                     .then((survey) => {
                         var found = surveysByUser.some(function(el) {
-                            return el.survey_id.survey_id === item.survey_id;
+                            return el.surveyId.surveyId === item.surveyId;
                         });
                         if(!found) {
-                            surveysByUser.push({survey_id: survey[0], versions: survey});
+                            surveysByUser.push({surveyId: survey[0], versions: survey});
                         }
                         count++;
                         if(count === surveyResult.length) {
@@ -121,21 +121,21 @@ export function show(req, res) {
 // Creates a new Survey in the DB
 export function createSurvey(req, res) {
     console.log(req.authData);
-    const client_id = req.authData.PM_Client_ID;
-    const survey_name = req.body.survey_name;
+    const clientId = req.authData.PM_Client_ID;
+    const surveyName = req.body.surveyName;
     const creator = req.authData.PM_UserID;
     const bodyForImage = {
         client_id: req.authData.PM_Client_ID,
         imageData: req.body.imageData,
         whichImage: 'ProjectLogo',
     };
-    console.log('amit', req.body, client_id);
+    console.log('clientId', req.body, clientId);
 
     Survey.findOne({
         where: {
-            version_id: req.body.version_id,
-            survey_id: req.body.survey_id,
-            client_id: client_id
+            versionId: req.body.versionId,
+            surveyId: req.body.surveyId,
+            clientId: clientId
         }
     })
         .then((result) => {
@@ -144,10 +144,10 @@ export function createSurvey(req, res) {
                     .json({success: false, message: 'Survey with same Version already exist. Please change survey version or create new one.'});
             }
             req.body.created_by = creator;
-            return surveyAdd(req.body, client_id, 'Published');
+            return surveyAdd(req.body, clientId, 'Published');
         })
         .then((result) => {
-            addSurveyor(req.body.assigned_to, result, client_id, creator);
+            addSurveyor(req.body.assignedTo, result, clientId, creator);
         })
         .then(() => {
             res.status(200)
@@ -162,21 +162,21 @@ export function createSurvey(req, res) {
 // Creates a new Survey in the DB as draft
 export function draftSurvey(req, res) {
     console.log(req.authData);
-    const client_id = req.authData.PM_Client_ID;
-    const survey_name = req.body.survey_name;
+    const clientId = req.authData.PM_Client_ID;
+    const surveyName = req.body.surveyName;
     const creator = req.authData.PM_UserID;
     const bodyForImage = {
-        client_id: req.authData.PM_Client_ID,
+        clientId: req.authData.PM_Client_ID,
         imageData: req.body.imageData,
         whichImage: 'ProjectLogo',
     };
-    console.log('amit', req.body, client_id);
+    console.log('clientId', req.body, clientId);
 
     Survey.findOne({
         where: {
-            version_id: req.body.version_id,
-            survey_id: req.body.survey_id,
-            client_id: client_id
+            versionId: req.body.versionId,
+            surveyId: req.body.surveyId,
+            clientId: clientId
         }
     })
         .then((result) => {
@@ -185,7 +185,7 @@ export function draftSurvey(req, res) {
                     .json({success: false, message: 'Survey with same Version already exist. Please change survey version or create new one.'});
             }
             req.body.created_by = creator;
-            return surveyAdd(req.body, client_id, 'Draft');
+            return surveyAdd(req.body, clientId, 'Draft');
         })
         .then(() => {
             res.status(200)
@@ -197,18 +197,18 @@ export function draftSurvey(req, res) {
         });
 }
 
-function addSurveyor(assigned_to, survey, client_id, creator) {
+function addSurveyor(assigned_to, survey, clientId, creator) {
     return new Promise((resolve, reject) => {
         const post = assigned_to.split(',');
         console.log('assigned_to', post);
         let count = 0;
         post.forEach((item) => {
             let insertObj = {
-                client_id: client_id,
-                survey_id: survey.survey_id,
-                creator: creator,
-                version_id: survey.version_id,
-                user_id: item,
+                clientId: clientId,
+                surveyId: survey.surveyId,
+                createdBy: creator,
+                versionId: survey.versionId,
+                userId: item,
             };
             console.log('insertObj', insertObj);
             SurveyUser.create(insertObj, {isNewRecord: true})
@@ -231,24 +231,23 @@ function addSurveyor(assigned_to, survey, client_id, creator) {
     });
 }
 
-function surveyAdd(userObj, client_id, survey_status) {
+function surveyAdd(userObj, clientId, surveyStatus) {
     return new Promise((resolve, reject) => {
         const post = {
-            client_id: client_id,
-            client_logo: userObj.client_logo,
-            version_id: userObj.version_id,
-            survey_name: userObj.survey_name,
-            survey_id: userObj.survey_id,
-            survey_template: userObj.survey_template,
-            survey_url: userObj.survey_url,
-            created_by: userObj.created_by,
-            survey_created_at: new Date().toString(),
-            survey_description: userObj.survey_description,
-            survey_type: userObj.survey_type,
-            assigned_to: userObj.assigned_to,
-            survey_status: survey_status,
+            clientId: clientId,
+            clientLogo: userObj.clientLogo,
+            versionId: userObj.versionId,
+            surveyName: userObj.surveyName,
+            surveyId: userObj.surveyId,
+            surveyTemplate: userObj.surveyTemplate,
+            surveyUrl: userObj.surveyUrl,
+            createdBy: userObj.createdBy,
+            surveyCreatedAt: new Date().toString(),
+            surveyDescription: userObj.surveyDescription,
+            surveyType: userObj.surveyType,
+            assignedTo: userObj.assignedTo,
+            surveyStatus: surveyStatus,
         };
-
         Survey.create(post)
             .then((x) => {
                 resolve(x);

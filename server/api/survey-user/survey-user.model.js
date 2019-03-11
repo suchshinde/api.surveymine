@@ -1,28 +1,28 @@
 export default function(sequelize, DataTypes) {
     return sequelize.define('SurveyUser', {
-        id: {
+        Id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true,
             autoIncrement: true
         },
-        client_id: {
+        clientId: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        survey_id: {
+        surveyId: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        version_id: {
+        versionId: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        creator: {
+        createdBy: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        user_id: {
+        userId: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
