@@ -1957,13 +1957,13 @@ export function createNewUser(req, res) {
                     where: Sequelize.or(
                         Sequelize.and(
                             {
-                                PM_Client_ID: '1', //req.authData.PM_Client_ID,
+                                PM_Client_ID: req.authData.PM_Client_ID,
                                 PM_User_MobileNumber: userAdd.PM_User_MobileNumber,
                             },
                         ),
                         Sequelize.and(
                             {
-                                PM_Client_ID: '1', //req.authData.PM_Client_ID,
+                                PM_Client_ID: req.authData.PM_Client_ID,
                                 PM_User_Email_ID: userAdd.PM_User_Email_ID,
                             },
                         ),
