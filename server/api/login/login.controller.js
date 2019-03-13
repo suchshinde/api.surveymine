@@ -707,6 +707,7 @@ function getCode() {
 }
 
 export function index(req, res) {
+    console.log("sss");
     const condition = {
         where: Sequelize.and(
             {PM_Domain: req.body.domain, PM_User_Active: 1},

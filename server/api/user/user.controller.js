@@ -21,6 +21,8 @@ import {
 } from '../../sqldb';
 import {RegisterClient, Subscription} from '../../sqldb/portal.db';
 import { saveEmailSmsBacked, saveScreenBackend, createBodyAndSendNotification } from '../notifications/notifications.controller';
+import {generatePassword, sendOTP} from '../register/register.controller';
+import {logger} from '../../components/logger';
 //import { showDetailsProject } from '../project/project.controller';
 //import { getImageUrl, saveImageBackEnd, getSingleImage } from '../imageManagement/imageManagement.controller';
 
@@ -430,12 +432,14 @@ export function getUserBackEnd(id) {
 }
 
 export function update(req, res) {
+    console.log('bodyy', req.body);
     const bodyForImage = {
         PM_Client_ID: req.authData.PM_Client_ID,
         PM_UserID: req.body.PM_UserID,
         imageData: req.body.PM_User_ProfilePic,
         whichImage: 'User_PP',
     };
+    //   res.json({status: true, msg: 'User Updated Succesfully'});
     insertInto(req.body, 'update')
         .then((filePath) => {
             /* if (filePath) {
@@ -468,11 +472,13 @@ export function update(req, res) {
                                         .then((s) => {
                                             if(index1 === roleList.length - 1) {
                                                 if(bodyForImage.imageData) {
-                                                    return saveImageBackEnd(bodyForImage)
-                                                        .then(() => res.status(200)
-                                                            .json({success: true, msg: 'User Updated Successfully'}))
-                                                        .catch(() => res.status(200)
-                                                            .json({success: true, msg: 'User Updated Successfully'}));
+                                                    // return saveImageBackEnd(bodyForImage)
+                                                    // .then(() =>
+                                                    res.status(200)
+                                                        .json({success: true, msg: 'User Updated Successfully'});
+                                                    //.catch(() =>
+                                                    // res.status(200)
+                                                    //         .json({success: true, msg: 'User Updated Successfully'}));
                                                 }
                                                 return res.status(200)
                                                     .json({success: true, msg: 'User Updated Successfully'});
@@ -496,13 +502,13 @@ export function role(req, res) {
     //req.authData={};
     //req.authData.PM_Client_ID="1";
     Role.findAll({
-            where: {Status: 1, PM_Client_ID: req.authData.PM_Client_ID},
-            order: [
-                ['ID', 'DESC'],
-            ],
-            attributes: ['ID', 'Description'],
-            raw: true
-        },
+        where: {Status: 1, PM_Client_ID: req.authData.PM_Client_ID},
+        order: [
+            ['ID', 'DESC'],
+        ],
+        attributes: ['ID', 'Description'],
+        raw: true
+    },
     )
         .then((obj) => {
             res.json(obj);
@@ -2003,11 +2009,11 @@ export function createNewUser(req, res) {
                                                         data: `${userAdd.PM_User_FullName}|${req.authData.PM_User_FullName}|${process.env.PROTOCOL}${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}|
                           ${process.env.PROTOCOL}${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}${process.env.FORGOT_CREATE_PASSWORD_LINK}&&email=${userAdd.PM_User_Email_ID}&&fullname=${userAdd.PM_User_FullName}&&mobile=${userAdd.PM_User_MobileNumber}|
                           ${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}`,
-//for local                                                        //data: `${userAdd.PM_User_FullName}|${req.authData.PM_User_FullName}|http://localhost:8000|http://localhost:8000${process.env.FORGOT_CREATE_PASSWORD_LINK}email=${userAdd.PM_User_Email_ID}&&fullname=${userAdd.PM_User_FullName}&&mobile=${userAdd.PM_User_MobileNumber}|${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}`
+                                                        //for local                                                        //data: `${userAdd.PM_User_FullName}|${req.authData.PM_User_FullName}|http://localhost:8000|http://localhost:8000${process.env.FORGOT_CREATE_PASSWORD_LINK}email=${userAdd.PM_User_Email_ID}&&fullname=${userAdd.PM_User_FullName}&&mobile=${userAdd.PM_User_MobileNumber}|${req.authData.PM_Domain.toLowerCase()}.${process.env.MAIN_DOMAIN}`
                                                     },
                                                 ],
                                             };
-                                             saveEmailSmsBacked(bodyWelcome);
+                                            saveEmailSmsBacked(bodyWelcome);
                                             createBodyAndSendNotification(req, 'screen', 'firstLoginWelcome')
                                                 .then(() => createBodyAndSendNotification(req, 'screen', 'firstLoginTips'))
                                                 .then(() => createBodyAndSendNotification(req, 'screen', 'firstLoginStartFirstProject'))
@@ -2020,7 +2026,7 @@ export function createNewUser(req, res) {
 
                                             if(bodyForImage.imageData) {
                                                 bodyForImage.PM_UserID = user.PM_UserID;
-                                               /* by  amit return saveImageBackEnd(bodyForImage)
+                                                /* by  amit return saveImageBackEnd(bodyForImage)
                                                     .then(() => res.send({
                                                             success: true,
                                                             msg: 'User Created Successfully',
@@ -2033,18 +2039,18 @@ export function createNewUser(req, res) {
                                                     ));*/
                                             }
                                             return res.send({
-                                                    success: true,
-                                                    msg: 'User Created Successfully',
-                                                },
+                                                success: true,
+                                                msg: 'User Created Successfully',
+                                            },
                                             );
                                         }
                                     });
                             });
                         } else {
                             res.send({
-                                    success: false,
-                                    msg: 'User already in your domain'
-                                },
+                                success: false,
+                                msg: 'User already in your domain'
+                            },
                             );
                         }
                     })
@@ -2929,7 +2935,116 @@ export function getOnlyResourcesNew(req, res) {
         });
 }
 
-
+export function forgotPassword(req, res) {
+    console.log('aaa', req.body);
+    const condition = {
+        where: Sequelize.and(
+            { PM_Domain: req.body.domainName, PM_User_Active: 1 },
+            Sequelize.or(
+                {
+                    PM_User_MobileNumber: req.body.PM_User_MobileNumber,
+                },
+                {
+                    PM_User_Email_ID: req.body.email,
+                },
+            ),
+        ),
+    };
+    RegisterUser.findOne({condition}).then((userObj) => {
+        if(userObj) {
+            sendOTP(req.body.email, '11111111', req.body.domainName, 3, res);
+        } else {
+            res.json({status: false, msg: 'User Not found', data: req.body});
+        }
+    });
+}
+export function updatePassword(req, res) {
+    console.log(req.body);
+    RegisterUser.findOne({
+        where: {
+            PM_User_Email_ID: req.body.email,
+            PM_Domain: req.body.domainName
+        }
+    })
+        .then((results) => {
+            if(results) {
+                console.log(results.PM_User_OTP, 'results.otp');
+                if(parseInt(results.PM_User_OTP, 10) === parseInt(req.body.otp, 10)) {
+                    const timeDiff = (new Date().getTime()
+                        - new Date(results.PM_User_OTPTime).getTime()) / 1000;
+                    if(timeDiff <= process.env.OTP_TIME) {
+                        generatePassword(req.body.password)
+                            .then((password) => {
+                                if(password !== results.PM_User_Login_PWD) {
+                                    RegisterUser.update({
+                                        PM_User_Login_PWD: password,
+                                        PM_User_OTP: null,
+                                        PM_User_OTPTime: null,
+                                        PM_User_Status: true,
+                                        IsLock: false,
+                                    },
+                                    {
+                                        where: {
+                                            PM_User_Email_ID: req.body.email,
+                                            PM_Domain: req.body.domainName,
+                                        },
+                                    })
+                                        .then((results1) => {
+                                            if(results1[0] === 1) {
+                                                RegisterClient.update({
+                                                    PM_Client_Password: password,
+                                                    PM_Client_OTP: null,
+                                                    PM_Client_OTPTime: null,
+                                                },
+                                                {
+                                                    where: {
+                                                        PM_Client_Email: req.body.email,
+                                                        PM_Client_Domain: req.body.domainName,
+                                                    },
+                                                })
+                                                    .then((results2) => {
+                                                       return res.status(200)
+                                                            .send({
+                                                                success: true,
+                                                                msg: 'password updated successfully',
+                                                            });
+                                                    })
+                                                    .catch((err) => {
+                                                        logger.error({
+                                                            msg: 'Something went wrong',
+                                                            error: err,
+                                                        });
+                                                        res.status(500)
+                                                            .send({success: false, msg: 'something went wrong'});
+                                                    });
+                                                // res.send({ success: true, msg: 'password updated successfully' });
+                                            } else {
+                                                res.status(500)
+                                                    .send({success: false, msg: 'something went wrong'});
+                                            }
+                                        });
+                                } else {
+                                    res
+                                        .send({success: false, msg: 'New password and old password should not be same'});
+                                }
+                            });
+                    } else {
+                        return res.status(408)
+                            .send({
+                                success: false,
+                                msg: 'OTP entered is expired. Please click RESEND OTP in order to receive new OTP',
+                            });
+                    }
+                } else {
+                    return res.status(422)
+                        .send({success: false, msg: 'OTP is Wrong'});
+                }
+            } else {
+                return res.status(404)
+                    .send({success: false, msg: 'Account not found'});
+            }
+        });
+}
 export function updateResourceNew(req, res) {
     const updateRoles = req.body.roles;
     // const resource = {

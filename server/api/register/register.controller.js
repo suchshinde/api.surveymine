@@ -7,7 +7,7 @@ import nodemailer from 'nodemailer';
 import moment from 'moment';
 import fs from 'fs';
 import handlebars from 'handlebars';
-import {Register, RegisterUser} from '../../sqldb';
+import {Register, RegisterUser, Sequelize} from '../../sqldb';
 import {RegisterClient} from '../../sqldb/portal.db';
 import {logger} from '../../components/logger';
 
@@ -42,7 +42,7 @@ function userRegister(userObj, ID) {
     });
 }
 
-function generatePassword(password) {
+export function generatePassword(password) {
     return new Promise((resolve) => {
         const key = crypto.createCipher('aes-128-cbc', 'abc');// abc replace by some data
         let newPassword = key.update(password, 'utf8', 'hex');
@@ -79,7 +79,7 @@ function clientRegister(userObj) {
     });
 }
 
-function sendOTP(email, mobileNo, domain, fromWhere, res) {
+export function sendOTP(email, mobileNo, domain, fromWhere, res) {
     const OTP = otpGenerator.generate(6, {
         upperCase: false,
         specialChars: false,
@@ -98,8 +98,21 @@ function sendOTP(email, mobileNo, domain, fromWhere, res) {
     const optSender = new SendOtp(process.env.AUTHKEY);
     const dateofOtp = moment(new Date())
         .format('YYYY-MM-DD HH:mm:ss');
+    const condition = {
+        where: Sequelize.and(
+            { PM_Domain: domain },
+            Sequelize.or(
+                {
+                    PM_User_MobileNumber: mobileNo,
+                },
+                {
+                    PM_User_Email_ID: email,
+                },
+            ),
+        ),
+    };
     RegisterUser.update({PM_User_OTP: OTP, PM_User_OTPTime: dateofOtp},
-        {where: {PM_User_MobileNumber: mobileNo, PM_User_Email_ID: email, PM_Domain: domain}})
+        condition)
         .then((results) => {
             if(results[0] === 1) {
                 const filePath = `${__dirname}/otpTemplate.html`;

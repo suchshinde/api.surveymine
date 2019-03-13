@@ -19,4 +19,6 @@ router.get('/:id', auth.isAuthenticated, controller.getUser);// user/get
 router.post('/update', auth.isAuthenticated, controller.update);//  update user
 router.post('/', auth.isAuthenticated, controller.createNewUser);// auth.isAuthenticated, permit('UserMaster'),  add user
 router.get('/r/role', auth.isAuthenticated, controller.role);//  get all user
+router.patch('/forgot/password', controller.forgotPassword);
+router.patch('/forgot/password/update', controller.updatePassword);
 module.exports = router;
