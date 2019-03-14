@@ -9,7 +9,7 @@
  */
 import {logger} from '../../components/logger';
 import {applyPatch} from 'fast-json-patch';
-import {Survey, SurveyUser} from '../../sqldb';
+import {Survey, SurveyUser, Sequelize} from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
@@ -106,6 +106,35 @@ export function getAllSurveyByUser(req, res) {
         .catch(handleError(res));
 }
 
+// Get Surveys Created By User
+export function getAllSurveyCreatedByUser(req, res) {
+    console.log(req.params.search);
+    let condition = {};
+    if(req.params.search === '0') {
+        condition = {
+            where: {
+                clientId: req.authData.PM_Client_ID,
+                createdBy: req.authData.PM_UserID,
+                surveyStatus: 'Published'
+            }
+        };
+    } else {
+        condition = {
+            where: {
+                clientId: req.authData.PM_Client_ID,
+                createdBy: req.authData.PM_UserID,
+                surveyStatus: 'Published',
+                surveyName: { [Sequelize.Op.like]: `%${req.params.search}%` } }
+
+        };
+    }
+    // console.log('asjdhskjd', req.authData.PM_Client_ID, req.authData.PM_UserID);
+    Survey.findAll(condition)
+        .then((surveyResult) => res.json({status: true, msg: 'Survey List', data: surveyResult}))
+        // .then(respondWithResult(res))
+        .catch(handleError(res));
+}
+
 // Gets a single Survey from the DB as published
 export function show(req, res) {
     return Survey.find({
@@ -135,7 +164,7 @@ export function createSurvey(req, res) {
         where: {
             versionId: req.body.versionId,
             surveyId: req.body.surveyId,
-            clientId: clientId
+            clientId
         }
     })
         .then((result) => {
@@ -176,7 +205,7 @@ export function draftSurvey(req, res) {
         where: {
             versionId: req.body.versionId,
             surveyId: req.body.surveyId,
-            clientId: clientId
+            clientId
         }
     })
         .then((result) => {
@@ -204,7 +233,7 @@ function addSurveyor(assigned_to, survey, clientId, creator) {
         let count = 0;
         post.forEach((item) => {
             let insertObj = {
-                clientId: clientId,
+                clientId,
                 surveyId: survey.surveyId,
                 createdBy: creator,
                 versionId: survey.versionId,
@@ -234,7 +263,7 @@ function addSurveyor(assigned_to, survey, clientId, creator) {
 function surveyAdd(userObj, clientId, surveyStatus) {
     return new Promise((resolve, reject) => {
         const post = {
-            clientId: clientId,
+            clientId,
             clientLogo: userObj.clientLogo,
             versionId: userObj.versionId,
             surveyName: userObj.surveyName,
@@ -246,7 +275,7 @@ function surveyAdd(userObj, clientId, surveyStatus) {
             surveyDescription: userObj.surveyDescription,
             surveyType: userObj.surveyType,
             assignedTo: userObj.assignedTo,
-            surveyStatus: surveyStatus,
+            surveyStatus,
         };
         Survey.create(post)
             .then((x) => {

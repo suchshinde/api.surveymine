@@ -4,6 +4,8 @@ const auth = require('../../auth/auth.service');
 var router = express.Router();
 
 router.get('/', auth.isAuthenticated, controller.getAllSurveyByUser);
+router.get('/created/by/:search', auth.isAuthenticated, controller.getAllSurveyCreatedByUser);
+
 router.get('/:id', auth.isAuthenticated, controller.show);
 /* Publish New Survey*/
 router.post('/', auth.isAuthenticated, controller.createSurvey);
