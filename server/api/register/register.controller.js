@@ -120,7 +120,7 @@ export function sendOTP(email, mobileNo, domain, fromWhere, res) {
                     fs.readFile(filePath, 'utf8', (err, data) => {
                         const template = handlebars.compile(data);
                         const dataObj = {otp: OTP};
-                        const imageUrl = process.env.SITEURL;
+                        const imageUrl = `${process.env.PROTOCOL}${process.env.MAIN_DOMAIN}`;
                         const body = template({data: dataObj, imageUrl});
                         let subject = 'Please confirm your Email account';
                         if(fromWhere === 3) {
