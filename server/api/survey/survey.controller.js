@@ -172,7 +172,7 @@ export function createSurvey(req, res) {
                 return res.status(400)
                     .json({success: false, message: 'Survey with same Version already exist. Please change survey version or create new one.'});
             }
-            req.body.created_by = creator;
+            req.body.createdBy = creator;
             return surveyAdd(req.body, clientId, 'Published');
         })
         .then((result) => {
