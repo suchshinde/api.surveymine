@@ -94,7 +94,6 @@ export function show(req, res) {
 export function createSurveyResponse(req, res) {
     const clientId = req.authData.PM_Client_ID;
     const responseBy = req.authData.PM_UserID;
-
     console.log('clientId', req.body, clientId);
     req.body.responseBy = responseBy;
     const responseJson = req.body.responseJson;
@@ -127,7 +126,41 @@ export function createSurveyResponse(req, res) {
                 .send({success: false, msg: 'Error while Survey Response Submit:' + err});
         });
 }
-
+export function submitPartialSurveyResponse(req, res) {
+    const clientId = req.authData.PM_Client_ID;
+    const responseBy = req.authData.PM_UserID;
+    console.log('clientId', req.body, clientId);
+    req.body.responseBy = responseBy;
+    const responseJson = req.body.responseJson;
+    let template = JSON.parse(responseJson);
+    //let tmpwithsign = template.filter((item) => {
+    //   return item.type === 'signature';
+    // })
+    const post = {
+        clientId,
+        versionId: req.body.versionId,
+        surveyName: req.body.surveyName,
+        surveyId: req.body.surveyId,
+        surveyTemplate: req.body.surveyTemplate,
+        surveyUrl: req.body.surveyUrl,
+        createdBy: req.body.createdBy,
+        responseBy: responseBy,
+        responseStatus: 'Partial',
+        responseAt: new Date().toString(),
+        responseJson: req.body.responseJson,
+        surveyType: req.body.surveyType,
+        surveyStatus: req.body.surveyStatus,
+    };
+    SurveyResponse.create(post)
+        .then(() => {
+            res.status(200)
+                .send({success: true, msg: 'Survey Response Submitted Successfully'});
+        })
+        .catch(err => {
+            res.status(400)
+                .send({success: false, msg: 'Error while Survey Response Submit:' + err});
+        });
+}
 // async function uploadSignature(authData, tmpwithsign) {
 //     const bucket_name = `${process.env.minio_bucket_name}`;///${req.authData.PM_Client_ID}/${req.authData.PM_UserID}`
 //     let count = 0;
