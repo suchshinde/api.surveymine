@@ -173,8 +173,6 @@ async function insertInto(User, from) {
         Obj.userCount = userCount;
         Obj.maxUserAllow = maxUserAllow.PLAN_USERS;
     }
-
-
     /* if (User.PM_User_ProfilePic) {
       const imageTypeRegularExpression = /\/(.*?)$/;
       const imageBuffer = await decodeBase64Image(User.PM_User_ProfilePic);
@@ -258,6 +256,7 @@ export function show(req, res) {
     }
     RegisterUser.findAll(query)
         .then((data) => {
+            console.log('data',data)
             if(data) {
                 /* getAllUser(results)
                   .then((data) => { */

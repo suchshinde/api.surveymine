@@ -7,8 +7,8 @@ import path from 'path';
 
 export default function(app) {
     // Insert routes below
-    app.use('/api/survey-response', require('./api/survey-response'));
-    app.use('/api/survey-user', require('./api/survey-user'));
+    app.use('/api/surveyresponse', require('./api/survey-response'));
+    app.use('/api/surveyuser', require('./api/survey-user'));
     app.use('/api/surveys', require('./api/survey'));
     app.use('/api/login', require('./api/login'));
     app.use('/api/register', require('./api/register'));

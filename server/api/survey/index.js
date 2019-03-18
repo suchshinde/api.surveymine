@@ -10,7 +10,7 @@ router.get('/:id', auth.isAuthenticated, controller.show);
 /* Publish New Survey*/
 router.post('/', auth.isAuthenticated, controller.createSurvey);
 /* Save Survey as Draft*/
-router.post('/', auth.isAuthenticated, controller.draftSurvey);
+router.post('/draft', auth.isAuthenticated, controller.draftSurvey);
 router.put('/:id', auth.isAuthenticated, controller.upsert);
 router.patch('/:id', auth.isAuthenticated, controller.patch);
 router.delete('/:id', auth.isAuthenticated, controller.destroy);

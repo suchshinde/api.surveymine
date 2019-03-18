@@ -39,12 +39,16 @@ export default function (sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true,
         },
+        responseStatus: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         responseAt: {
             type: DataTypes.STRING,
             allowNull: true,
         },
         responseJson: {
-            type: DataTypes.STRING,
+            type: DataTypes.JSON,
             allowNull: true,
         },
         responseCount: {

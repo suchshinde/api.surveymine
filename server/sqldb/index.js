@@ -43,7 +43,7 @@ db.NotificationsEmailSms = db.sequelize.import('../api/notifications/notificatio
 db.NotificationsScreen = db.sequelize.import('../api/notifications/notificationsScreen.model');
 db.NotificationsTemplates = db.sequelize.import('../api/notifications/notificationsTemplates.model');
 db.PermissionNotify = db.sequelize.import('../api/notifications/permissionNotify.model');
-
+db.SurveyResponse = db.sequelize.import('../api/survey-response/survey-response.model');
 
 db.RegisterUser.hasMany(db.LoginSession, {as: 'UserID', foreignKey: 'UserID'});
 db.RegisterUser.hasMany(db.NotificationsScreen, {as: 'Notification', foreignKey: 'senderId'});
@@ -53,14 +53,14 @@ db.Permission.hasMany(db.Menu, {as: 'PermissionMenu', foreignKey: 'permissionID'
 
 db.RegisterUser.hasMany(db.UserRole, {as: 'User', foreignKey: 'userID'});
 db.Role.hasMany(db.UserRole, {as: 'Role', foreignKey: 'roleID'});
-db.UserRole.belongsTo(db.Role, { as: 'UserRole1', foreignKey: 'roleID' }); // if want to use main primary key table in include
+db.UserRole.belongsTo(db.Role, {as: 'UserRole1', foreignKey: 'roleID'}); // if want to use main primary key table in include
 // db.UserRole.belongsTo(db.RegisterUser, { as: 'UserRole2', foreignKey: 'userID' });
 
 
 db.Role.hasMany(db.RolePermission, {as: 'RoleP', foreignKey: 'roleID'});
 db.Permission.hasMany(db.RolePermission, {as: 'Permission1', foreignKey: 'permissionID'});
-db.RolePermission.belongsTo(db.Permission, { as: 'Permission2', foreignKey: 'permissionID' });
-db.Menu.belongsTo(db.Option, { as: 'option1', foreignKey: 'optionID' });
+db.RolePermission.belongsTo(db.Permission, {as: 'Permission2', foreignKey: 'permissionID'});
+db.Menu.belongsTo(db.Option, {as: 'option1', foreignKey: 'optionID'});
 
 // db.RolePermission.belongsTo(db.Role, { as: 'Role3', foreignKey: 'roleID' });
 

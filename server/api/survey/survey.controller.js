@@ -13,8 +13,8 @@ import {Survey, SurveyUser, Sequelize} from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
-    return function(entity) {
-        if(entity) {
+    return function (entity) {
+        if (entity) {
             return res.status(statusCode)
                 .json(entity);
         }
@@ -23,10 +23,10 @@ function respondWithResult(res, statusCode) {
 }
 
 function patchUpdates(patches) {
-    return function(entity) {
+    return function (entity) {
         try {
             applyPatch(entity, patches, /*validate*/ true);
-        } catch(err) {
+        } catch (err) {
             return Promise.reject(err);
         }
 
@@ -35,8 +35,8 @@ function patchUpdates(patches) {
 }
 
 function removeEntity(res) {
-    return function(entity) {
-        if(entity) {
+    return function (entity) {
+        if (entity) {
             return entity.destroy()
                 .then(() => res.status(204)
                     .end());
@@ -45,8 +45,8 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-    return function(entity) {
-        if(!entity) {
+    return function (entity) {
+        if (!entity) {
             res.status(404)
                 .end();
             return null;
@@ -57,7 +57,7 @@ function handleEntityNotFound(res) {
 
 function handleError(res, statusCode) {
     statusCode = statusCode || 500;
-    return function(err) {
+    return function (err) {
         res.status(statusCode)
             .send(err);
     };
@@ -68,8 +68,8 @@ export function getAllSurveyByUser(req, res) {
     // console.log('asjdhskjd', req.authData.PM_Client_ID, req.authData.PM_UserID);
     SurveyUser.findAll({
         where: {
-            client_id: req.authData.PM_Client_ID,
-            user_id: req.authData.PM_UserID
+            clientId: req.authData.PM_Client_ID,
+            userId: req.authData.PM_UserID
         }
     })
         .then((surveyResult) => {
@@ -78,18 +78,18 @@ export function getAllSurveyByUser(req, res) {
             surveyResult.forEach((item) => {
                 Survey.findAll({
                     where: {
-                        survey_id: item.surveyId
+                        surveyId: item.surveyId
                     }
                 })
                     .then((survey) => {
-                        var found = surveysByUser.some(function(el) {
+                        var found = surveysByUser.some(function (el) {
                             return el.surveyId.surveyId === item.surveyId;
                         });
-                        if(!found) {
+                        if (!found) {
                             surveysByUser.push({surveyId: survey[0], versions: survey});
                         }
                         count++;
-                        if(count === surveyResult.length) {
+                        if (count === surveyResult.length) {
                             return res.status(200)
                                 .json({
                                     success: false,
@@ -154,7 +154,7 @@ export function createSurvey(req, res) {
     const surveyName = req.body.surveyName;
     const creator = req.authData.PM_UserID;
     const bodyForImage = {
-        client_id: req.authData.PM_Client_ID,
+        clientId: req.authData.PM_Client_ID,
         imageData: req.body.imageData,
         whichImage: 'ProjectLogo',
     };
@@ -168,9 +168,12 @@ export function createSurvey(req, res) {
         }
     })
         .then((result) => {
-            if(result) {
+            if (result) {
                 return res.status(400)
-                    .json({success: false, message: 'Survey with same Version already exist. Please change survey version or create new one.'});
+                    .json({
+                        success: false,
+                        message: 'Survey with same Version already exist. Please change survey version or create new one.'
+                    });
             }
             req.body.createdBy = creator;
             return surveyAdd(req.body, clientId, 'Published');
@@ -209,11 +212,14 @@ export function draftSurvey(req, res) {
         }
     })
         .then((result) => {
-            if(result) {
+            if (result) {
                 return res.status(400)
-                    .json({success: false, message: 'Survey with same Version already exist. Please change survey version or create new one.'});
+                    .json({
+                        success: false,
+                        message: 'Survey with same Version already exist. Please change survey version or create new one.'
+                    });
             }
-            req.body.created_by = creator;
+            req.body.createdBy = creator;
             return surveyAdd(req.body, clientId, 'Draft');
         })
         .then(() => {
@@ -244,7 +250,7 @@ function addSurveyor(assigned_to, survey, clientId, creator) {
                 .then((x) => {
                     console.log('count', count);
                     count++;
-                    if(count === post.length) {
+                    if (count === post.length) {
                         console.log('saved user srvue ', count);
                         resolve(x);
                     }
@@ -293,7 +299,7 @@ function surveyAdd(userObj, clientId, surveyStatus) {
 
 // Upserts the given Survey in the DB at the specified ID
 export function upsert(req, res) {
-    if(req.body._id) {
+    if (req.body._id) {
         Reflect.deleteProperty(req.body, '_id');
     }
     return Survey.upsert(req.body, {
@@ -307,7 +313,7 @@ export function upsert(req, res) {
 
 // Updates an existing Survey in the DB
 export function patch(req, res) {
-    if(req.body._id) {
+    if (req.body._id) {
         Reflect.deleteProperty(req.body, '_id');
     }
     return Survey.find({
