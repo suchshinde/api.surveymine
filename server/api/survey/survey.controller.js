@@ -130,7 +130,8 @@ export function getAllSurveyCreatedByUser(req, res) {
         condition = {
             where: Sequelize.and({
                     clientId: req.authData.PM_Client_ID,
-                    createdBy: req.authData.PM_UserID
+                    createdBy: req.authData.PM_UserID,
+                    surveyName: {[Sequelize.Op.like]: `%${req.params.search}%`}
                 },
                 Sequelize.or(
                     {
@@ -295,6 +296,7 @@ function surveyAdd(userObj, clientId, surveyStatus) {
             surveyDescription: userObj.surveyDescription,
             surveyType: userObj.surveyType,
             assignedTo: userObj.assignedTo,
+            surveySettingsData: userObj.surveySettingsData,
             surveyStatus,
         };
         Survey.create(post)
