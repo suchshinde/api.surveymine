@@ -64,7 +64,7 @@ function handleError(res, statusCode) {
 }
 
 // Gets a list of Surveys
-export function getAllSurveyByUser(req, res) {
+export function getAllSurveyAssignedToUser(req, res) {
     // console.log('asjdhskjd', req.authData.PM_Client_ID, req.authData.PM_UserID);
     SurveyUser.findAll({
         where: {
@@ -110,22 +110,37 @@ export function getAllSurveyByUser(req, res) {
 export function getAllSurveyCreatedByUser(req, res) {
     console.log(req.params.search);
     let condition = {};
-    if(req.params.search === '0') {
+    if (req.params.search === '0') {
         condition = {
-            where: {
-                clientId: req.authData.PM_Client_ID,
-                createdBy: req.authData.PM_UserID,
-                surveyStatus: 'Published'
-            }
+            where: Sequelize.and({
+                    clientId: req.authData.PM_Client_ID,
+                    createdBy: req.authData.PM_UserID
+                },
+                Sequelize.or(
+                    {
+                        surveyStatus: 'Published',
+                    },
+                    {
+                        surveyStatus: 'Draft',
+                    },
+                ),
+            ),
         };
     } else {
         condition = {
-            where: {
-                clientId: req.authData.PM_Client_ID,
-                createdBy: req.authData.PM_UserID,
-                surveyStatus: 'Published',
-                surveyName: { [Sequelize.Op.like]: `%${req.params.search}%` } }
-
+            where: Sequelize.and({
+                    clientId: req.authData.PM_Client_ID,
+                    createdBy: req.authData.PM_UserID
+                },
+                Sequelize.or(
+                    {
+                        surveyStatus: 'Published',
+                    },
+                    {
+                        surveyStatus: 'Draft',
+                    },
+                ),
+            ),
         };
     }
     // console.log('asjdhskjd', req.authData.PM_Client_ID, req.authData.PM_UserID);

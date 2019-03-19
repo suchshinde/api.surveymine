@@ -3,7 +3,7 @@ var controller = require('./survey.controller');
 const auth = require('../../auth/auth.service');
 var router = express.Router();
 
-router.get('/', auth.isAuthenticated, controller.getAllSurveyByUser);
+router.get('/', auth.isAuthenticated, controller.getAllSurveyAssignedToUser);
 router.get('/created/by/:search', auth.isAuthenticated, controller.getAllSurveyCreatedByUser);
 
 router.get('/:id', auth.isAuthenticated, controller.show);
