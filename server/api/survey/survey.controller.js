@@ -221,8 +221,7 @@ export function draftSurvey(req, res) {
 
     Survey.findOne({
         where: {
-            versionId: req.body.versionId,
-            surveyId: req.body.surveyId,
+            surveyName: req.body.surveyName,
             clientId
         }
     })
@@ -231,7 +230,7 @@ export function draftSurvey(req, res) {
                 return res.status(400)
                     .json({
                         success: false,
-                        message: 'Survey with same Version already exist. Please change survey version or create new one.'
+                        message: 'Draft with same name already exist. Please change draft name or create new one.'
                     });
             }
             req.body.createdBy = creator;
