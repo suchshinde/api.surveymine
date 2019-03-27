@@ -213,6 +213,7 @@ export function draftSurvey(req, res) {
     const clientId = req.authData.PM_Client_ID;
     const surveyName = req.body.surveyName;
     const creator = req.authData.PM_UserID;
+    const isdraftUpdate = req.body.draftUpdate;
     const bodyForImage = {
         clientId: req.authData.PM_Client_ID,
         imageData: req.body.imageData,
@@ -227,19 +228,33 @@ export function draftSurvey(req, res) {
         }
     })
         .then((result) => {
-            if (result) {
+            if (result && !isdraftUpdate) {
                 return res.status(400)
                     .json({
                         success: false,
                         message: 'Draft with same name already exist. Please change draft name or create new one.'
                     });
             }
-            req.body.createdBy = creator;
-            return surveyAdd(req.body, clientId, 'Draft');
+            if (isdraftUpdate) {
+                req.body.createdBy = creator;
+                return updateDraft(req.body, clientId, 'Draft');
+            }
+            else {
+                console.log('eeeeeeeeeeee');
+
+                req.body.createdBy = creator;
+                return surveyAdd(req.body, clientId, 'Draft');
+            }
         })
         .then(() => {
-            res.status(200)
-                .send({success: true, msg: 'Survey Saved as Draft Successfully'});
+            if (isdraftUpdate) {
+                res.status(200)
+                    .send({success: true, msg: 'Survey Draft Updated Successfully'});
+            }
+            else {
+                res.status(200)
+                    .send({success: true, msg: 'Survey Saved as Draft Successfully'});
+            }
         })
         .catch(err => {
             res.status(400)
@@ -299,6 +314,8 @@ function surveyAdd(userObj, clientId, surveyStatus) {
             surveySettingsData: userObj.surveySettingsData,
             surveyStatus,
         };
+
+        console.log('SurveyAdd', post);
         Survey.create(post)
             .then((x) => {
                 resolve(x);
@@ -312,6 +329,46 @@ function surveyAdd(userObj, clientId, surveyStatus) {
             });
     });
 }
+
+// updateDraft
+
+function updateDraft(userObj, clientId, surveyStatus) {
+    console.log('updateDraft', userObj);
+    return new Promise((resolve, reject) => {
+        const post = {
+            clientId,
+            clientLogo: userObj.clientLogo,
+            versionId: userObj.versionId,
+            surveyName: userObj.surveyName,
+            surveyId: userObj.surveyId,
+            surveyTemplate: userObj.surveyTemplate,
+            surveyUrl: userObj.surveyUrl,
+            createdBy: userObj.createdBy,
+            surveyCreatedAt: new Date().toString(),
+            surveyDescription: userObj.surveyDescription,
+            surveyType: userObj.surveyType,
+            assignedTo: userObj.assignedTo,
+            surveyStatus,
+        };
+
+        Survey.update(post, {
+            where: {
+                surveyId: userObj.surveyId
+            }
+        }).then((x) => {
+            resolve(x);
+        })
+            .catch((err) => {
+                logger.error({
+                    msg: 'Unauthorised',
+                    error: err,
+                });
+                reject(err);
+            });
+    })
+        ;
+}
+
 
 // Upserts the given Survey in the DB at the specified ID
 export function upsert(req, res) {
