@@ -78,7 +78,8 @@ export function getAllSurveyAssignedToUser(req, res) {
             surveyResult.forEach((item) => {
                 Survey.findAll({
                     where: {
-                        surveyId: item.surveyId
+                        surveyId: item.surveyId,
+                        surveyStatus:'Published'
                     }
                 })
                     .then((survey) => {
