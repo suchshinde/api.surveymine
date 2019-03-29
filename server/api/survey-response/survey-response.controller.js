@@ -90,6 +90,18 @@ export function show(req, res) {
         .catch(handleError(res));
 }
 
+// Gets a single SurveyResponse from the DB by user
+export function getTotalResponseByUser(req, res) {
+
+    return SurveyResponse.findAll({
+        where: {
+            responseBy: req.authData.PM_UserID
+        }
+    })
+        .then((responseResult) => res.json({status: true, msg: 'Response List', data: responseResult}))
+        .catch(handleError(res));
+}
+
 // Creates a new SurveyResponse in the DB
 export function createSurveyResponse(req, res) {
     const clientId = req.authData.PM_Client_ID;
@@ -126,6 +138,7 @@ export function createSurveyResponse(req, res) {
                 .send({success: false, msg: 'Error while Survey Response Submit:' + err});
         });
 }
+
 export function submitPartialSurveyResponse(req, res) {
     const clientId = req.authData.PM_Client_ID;
     const responseBy = req.authData.PM_UserID;
@@ -161,6 +174,7 @@ export function submitPartialSurveyResponse(req, res) {
                 .send({success: false, msg: 'Error while Survey Response Submit:' + err});
         });
 }
+
 // async function uploadSignature(authData, tmpwithsign) {
 //     const bucket_name = `${process.env.minio_bucket_name}`;///${req.authData.PM_Client_ID}/${req.authData.PM_UserID}`
 //     let count = 0;
