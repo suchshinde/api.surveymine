@@ -229,7 +229,7 @@ export function draftSurvey(req, res) {
         }
     })
         .then((result) => {
-            if (result && !isdraftUpdate) {
+            if (result && isdraftUpdate) {
                 return res.status(400)
                     .json({
                         success: false,
@@ -248,9 +248,9 @@ export function draftSurvey(req, res) {
             }
         })
         .then(() => {
-            if (isdraftUpdate) {
+            if(isdraftUpdate) {
                 res.status(200)
-                    .send({success: true, msg: 'Survey Draft Updated Successfully'});
+                    .send({success: true, msg: 'Draft Updated Successfully'});
             }
             else {
                 res.status(200)
@@ -412,3 +412,5 @@ export function destroy(req, res) {
         .then(removeEntity(res))
         .catch(handleError(res));
 }
+
+
