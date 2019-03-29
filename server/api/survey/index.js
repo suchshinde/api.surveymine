@@ -14,5 +14,8 @@ router.post('/draft', auth.isAuthenticated, controller.draftSurvey);
 router.put('/:id', auth.isAuthenticated, controller.upsert);
 router.patch('/:id', auth.isAuthenticated, controller.patch);
 router.delete('/:id', auth.isAuthenticated, controller.destroy);
+/* Delete draft */
+router.get('/deleteDraft/:id', auth.isAuthenticated, controller.deleteDraft);
+
 
 module.exports = router;

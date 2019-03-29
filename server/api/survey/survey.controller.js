@@ -405,12 +405,30 @@ export function patch(req, res) {
 export function destroy(req, res) {
     return Survey.find({
         where: {
-            _id: req.params.id
+            surveyId: req.params.id
         }
     })
         .then(handleEntityNotFound(res))
         .then(removeEntity(res))
         .catch(handleError(res));
+}
+
+// Deletes a Draft from DB
+export function deleteDraft(req, res) {
+    console.log('requestttt',  req.params.id)
+    return Survey.destroy({
+        where: {
+            surveyId: req.params.id
+        }
+    })
+        .then(() => {
+                res.status(200)
+                    .send({success: true, msg: 'Draft Deleted Successfully'});
+        })
+        .catch(err => {
+            res.status(400)
+                .send({success: true, msg: err});
+        });
 }
 
 
