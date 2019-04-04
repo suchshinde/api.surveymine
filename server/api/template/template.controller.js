@@ -85,6 +85,7 @@ export function getTemplateByCatagory(req, res) {
 
 // Creates a new Template in the DB
 export function createNewTemplate(req, res) {
+    const msg = 'Template already exist.';
     const creator = req.authData.PM_UserID;
     const clientId = req.authData.PM_Client_ID;
 
@@ -96,15 +97,23 @@ export function createNewTemplate(req, res) {
         }
     })
         .then((result) => {
-            if (result) {
-                return res.status(400)
-                    .json({
-                        success: false,
-                        message: 'Template already exist.'
-                    });
+            if(result) {
+                return new Promise((resolve, reject) => {
+                    reject(msg);
+                });
+            } else {
+                req.body.createdBy = creator;
+                return saveTemplate(req.body, clientId);
             }
-            req.body.createdBy = creator;
-           return saveTemplate(req.body , clientId);
+           //  if (result) {
+           //      return res.status(400)
+           //          .json({
+           //              success: false,
+           //              message: 'Template already exist.'
+           //          });
+           //  }
+           //  req.body.createdBy = creator;
+           // return saveTemplate(req.body , clientId);
         })
         .then(() => {
             res.status(200)

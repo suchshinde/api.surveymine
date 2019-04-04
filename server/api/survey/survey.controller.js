@@ -79,7 +79,7 @@ export function getAllSurveyAssignedToUser(req, res) {
                 Survey.findAll({
                     where: {
                         surveyId: item.surveyId,
-                        surveyStatus:'Published'
+                        surveyStatus: 'Published'
                     }
                 })
                     .then((survey) => {
@@ -167,6 +167,7 @@ export function show(req, res) {
 // Creates a new Survey in the DB
 export function createSurvey(req, res) {
     console.log(req.authData);
+    const msg = 'Survey with same Version already exist. Please change survey version or create new one.';
     const clientId = req.authData.PM_Client_ID;
     const surveyName = req.body.surveyName;
     const creator = req.authData.PM_UserID;
@@ -185,15 +186,24 @@ export function createSurvey(req, res) {
         }
     })
         .then((result) => {
-            if (result) {
-                return res.status(400)
-                    .json({
-                        success: false,
-                        message: 'Survey with same Version already exist. Please change survey version or create new one.'
-                    });
+            if(result) {
+                return new Promise((resolve, reject) => {
+                    reject(msg);
+                });
+            } else {
+                req.body.createdBy = creator;
+                return surveyAdd(req.body, clientId, 'Published');
             }
-            req.body.createdBy = creator;
-            return surveyAdd(req.body, clientId, 'Published');
+            //
+            // if (result) {
+            //     return res.status(400)
+            //         .json({
+            //             success: false,
+            //             message: 'Survey with same Version already exist. Please change survey version or create new one.'
+            //         });
+            // }
+            // req.body.createdBy = creator;
+            // return surveyAdd(req.body, clientId, 'Published');
         })
         .then((result) => {
             addSurveyor(req.body.assignedTo, result, clientId, creator);
@@ -211,6 +221,7 @@ export function createSurvey(req, res) {
 // Creates a new Survey in the DB as draft
 export function draftSurvey(req, res) {
     console.log(req.authData);
+    const msg = 'Draft with same name already exist. Please change draft name or create new one.';
     const clientId = req.authData.PM_Client_ID;
     const surveyName = req.body.surveyName;
     const creator = req.authData.PM_UserID;
@@ -229,23 +240,37 @@ export function draftSurvey(req, res) {
         }
     })
         .then((result) => {
-            if (result && isdraftUpdate) {
-                return res.status(400)
-                    .json({
-                        success: false,
-                        message: 'Draft with same name already exist. Please change draft name or create new one.'
-                    });
+
+            if(result && isdraftUpdate) {
+                return new Promise((resolve, reject) => {
+                    reject(msg);
+                });
             }
-            if (isdraftUpdate) {
+            if(isdraftUpdate) {
                 req.body.createdBy = creator;
                 return updateDraft(req.body, clientId, 'Draft');
             }
             else {
-                console.log('eeeeeeeeeeee');
-
                 req.body.createdBy = creator;
                 return surveyAdd(req.body, clientId, 'Draft');
             }
+            // if (result && isdraftUpdate) {
+            //     return res.status(400)
+            //         .json({
+            //             success: false,
+            //             message: 'Draft with same name already exist. Please change draft name or create new one.'
+            //         });
+            // }
+            // if (isdraftUpdate) {
+            //     req.body.createdBy = creator;
+            //     return updateDraft(req.body, clientId, 'Draft');
+            // }
+            // else {
+            //     console.log('eeeeeeeeeeee');
+            //
+            //     req.body.createdBy = creator;
+            //     return surveyAdd(req.body, clientId, 'Draft');
+            // }
         })
         .then(() => {
             if(isdraftUpdate) {

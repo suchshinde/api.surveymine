@@ -8,9 +8,10 @@ var router = express.Router();
 
 router.get('/', auth.isAuthenticated, controller.getCatagoryList);
 router.get('/:id', controller.show);
-router.post('/', controller.create);
+router.post('/', auth.isAuthenticated, controller.addCatagory);
 router.put('/:id', controller.upsert);
 router.patch('/:id', controller.patch);
-router.delete('/:id', controller.destroy);
+// router.delete('/:id', auth.isAuthenticated, controller.deleteCatagory);
+ // router.post('/catagory', auth.isAuthenticated, controller.updateCatagory)
 
 module.exports = router;

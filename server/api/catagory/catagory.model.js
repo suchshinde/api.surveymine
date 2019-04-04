@@ -12,10 +12,6 @@ export default function(sequelize, DataTypes) {
           type: DataTypes.STRING,
           allowNull: false,
       },
-      catagoryDescription: {
-          type: DataTypes.STRING,
-          allowNull: false,
-      },
       createdBy: {
           type: DataTypes.INTEGER,
           allowNull: false,
