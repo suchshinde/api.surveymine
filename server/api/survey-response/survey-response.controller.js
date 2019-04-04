@@ -102,6 +102,17 @@ export function getTotalResponseByUser(req, res) {
         .catch(handleError(res));
 }
 
+export function getTotalResponseToMySurveys(req, res) {
+    return SurveyResponse.findAll({
+        where: {
+            createdBy: req.authData.PM_UserID
+        }
+    })
+        .then((responseResult) => res.json({status: true, msg: 'Response List', data: responseResult}))
+        .catch(handleError(res));
+}
+
+
 // Creates a new SurveyResponse in the DB
 export function createSurveyResponse(req, res) {
     const clientId = req.authData.PM_Client_ID;

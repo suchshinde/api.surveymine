@@ -5,7 +5,7 @@ var controller = require('./survey-response.controller');
 
 var router = express.Router();
 
-router.get('/', auth.isAuthenticated, controller.index);
+router.get('/', auth.isAuthenticated, controller.getTotalResponseToMySurveys);
 router.get('/:id', auth.isAuthenticated, controller.show);
 router.post('/', auth.isAuthenticated, controller.createSurveyResponse);
 router.post('/partial', auth.isAuthenticated, controller.submitPartialSurveyResponse);
