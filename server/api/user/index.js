@@ -21,4 +21,5 @@ router.post('/', auth.isAuthenticated, controller.createNewUser);// auth.isAuthe
 router.get('/r/role', auth.isAuthenticated, controller.role);//  get all user
 router.patch('/forgot/password', controller.forgotPassword);
 router.patch('/forgot/password/update', controller.updatePassword);
+router.get('/deleteUser/:id', auth.isAuthenticated, controller.deleteUser);/* Delete user */
 module.exports = router;

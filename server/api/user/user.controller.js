@@ -20,7 +20,11 @@ import {
     resourceRole,
 } from '../../sqldb';
 import {RegisterClient, Subscription} from '../../sqldb/portal.db';
-import { saveEmailSmsBacked, saveScreenBackend, createBodyAndSendNotification } from '../notifications/notifications.controller';
+import {
+    saveEmailSmsBacked,
+    saveScreenBackend,
+    createBodyAndSendNotification
+} from '../notifications/notifications.controller';
 import {generatePassword, sendOTP} from '../register/register.controller';
 import {logger} from '../../components/logger';
 //import { showDetailsProject } from '../project/project.controller';
@@ -30,7 +34,7 @@ import {logger} from '../../components/logger';
 function extend(target) {
     const sources = [].slice.call(arguments, 1);
     sources.forEach((source) => {
-        for(const prop in source) {
+        for (const prop in source) {
             target[prop] = source[prop];
         }
     });
@@ -52,7 +56,7 @@ function sendEmail(email, mobileNo, domain) {
 <a href='http://localhost:4200/'>setup account</a>`,
     };
     smtpTransport.sendMail(mailOptions, (error) => {
-        if(error) {
+        if (error) {
             console.error({
                 msg: 'otp sending error',
                 error,
@@ -68,7 +72,7 @@ function decodeBase64Image(dataString) {
         const matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
         const response = {};
 
-        if(matches.length !== 3) {
+        if (matches.length !== 3) {
             return new Error('Invalid input string');
         }
 
@@ -81,9 +85,9 @@ function decodeBase64Image(dataString) {
 
 function encodeBase64Image(filePath) {
     return new Promise((resolve) => {
-        if(fs.existsSync(filePath)) {
+        if (fs.existsSync(filePath)) {
             fs.readFile(filePath, (err, data) => {
-                if(err) resolve(null);
+                if (err) resolve(null);
                 const buff = new Buffer(data);
                 let imageData = buff.toString('base64');
                 imageData = `data:image/${filePath.split('.')
@@ -97,8 +101,8 @@ function encodeBase64Image(filePath) {
 }
 
 async function getAllUser(data) {
-    for(const item of data) {
-        if(item.PM_User_ProfilePic) {
+    for (const item of data) {
+        if (item.PM_User_ProfilePic) {
             const userUploadedFeedMessagesLocation = `${process.env.UPLOAD_PATH}/pmsuploads/images/profile/`;
             const userUploadedImagePath = `${userUploadedFeedMessagesLocation}${item.PM_User_ProfilePic}`;
             item.PM_User_ProfilePic = await encodeBase64Image(userUploadedImagePath);
@@ -109,14 +113,14 @@ async function getAllUser(data) {
 
 function createFile(filePath, imageData, dir) {
     return new Promise((resolve) => {
-        if(!fs.existsSync(dir)) {
+        if (!fs.existsSync(dir)) {
             fs.mkdirSync(`${process.env.UPLOAD_PATH}/pmsuploads/`);
             fs.mkdirSync(`${process.env.UPLOAD_PATH}/pmsuploads/images/`);
             fs.mkdirSync(dir);
         }
         fs.writeFile(filePath, imageData,
             (err) => {
-                if(err) {
+                if (err) {
                     return resolve(null);
                 }
                 return resolve(filePath);
@@ -141,10 +145,9 @@ export function getMaxUserAllow(Client) {
             attributes: ['PM_Plan_Id']
         })
             .then((planID) => {
-                if(planID) {
+                if (planID) {
                     Subscription.findOne({
-                        where:
-                            {PLAN_ID: planID.PM_Plan_Id},
+                        where: {PLAN_ID: planID.PM_Plan_Id},
                         raw: true,
                         attributes: ['PLAN_USERS', 'PLAN_ROLES', 'PLAN_PROJECT'],
                     })
@@ -165,7 +168,7 @@ export function getMaxUserAllow(Client) {
 async function insertInto(User, from) {
     // get plan details for creating user here
     const Obj = {};
-    if(from === 'new') {
+    if (from === 'new') {
         const userCount = await getUserCount(User.PM_Client_ID);
         const maxUserAllow = await getMaxUserAllow(User.PM_Client_ID);
 
@@ -174,21 +177,21 @@ async function insertInto(User, from) {
         Obj.maxUserAllow = maxUserAllow.PLAN_USERS;
     }
     /* if (User.PM_User_ProfilePic) {
-      const imageTypeRegularExpression = /\/(.*?)$/;
-      const imageBuffer = await decodeBase64Image(User.PM_User_ProfilePic);
-      const userUploadedFeedMessagesLocation = `${process.env.UPLOAD_PATH}/pmsuploads/images/profile/`;
-      const uniqueRandomImageName = `image-${User.PM_User_MobileNumber}`;
-      const imageTypeDetected = imageBuffer.type.match(imageTypeRegularExpression);
-      const userUploadedImagePath = `${userUploadedFeedMessagesLocation}${uniqueRandomImageName}.${imageTypeDetected[1]}`;
-      // const userUploadedImagePath = `${uniqueRandomImageName}.${imageTypeDetected[1]}`;
-      const filePath = await createFile(userUploadedImagePath, imageBuffer.data, userUploadedFeedMessagesLocation);
-      Obj.filePath = filePath;
-      if (from === 'new') {
-        return Obj;
-      }
-      return filePath;
-    } */
-    if(from === 'new') {
+     const imageTypeRegularExpression = /\/(.*?)$/;
+     const imageBuffer = await decodeBase64Image(User.PM_User_ProfilePic);
+     const userUploadedFeedMessagesLocation = `${process.env.UPLOAD_PATH}/pmsuploads/images/profile/`;
+     const uniqueRandomImageName = `image-${User.PM_User_MobileNumber}`;
+     const imageTypeDetected = imageBuffer.type.match(imageTypeRegularExpression);
+     const userUploadedImagePath = `${userUploadedFeedMessagesLocation}${uniqueRandomImageName}.${imageTypeDetected[1]}`;
+     // const userUploadedImagePath = `${uniqueRandomImageName}.${imageTypeDetected[1]}`;
+     const filePath = await createFile(userUploadedImagePath, imageBuffer.data, userUploadedFeedMessagesLocation);
+     Obj.filePath = filePath;
+     if (from === 'new') {
+     return Obj;
+     }
+     return filePath;
+     } */
+    if (from === 'new') {
         return Obj;
     }
     return null;
@@ -230,7 +233,7 @@ export function show(req, res) {
     let likeCause = '';
     let limitValue;
     let skip;
-    if(req.query.q) {
+    if (req.query.q) {
         likeCause = req.query.q;
     }
     const query = {
@@ -247,7 +250,7 @@ export function show(req, res) {
             'PM_User_Village', 'PM_User_Pincode', 'PM_Designation', 'PM_User_ProfilePic'],
         raw: true,
     };
-    if(req.query.limit && req.query.limit !== '' && req.query.skip && req.query.skip !== '') {
+    if (req.query.limit && req.query.limit !== '' && req.query.skip && req.query.skip !== '') {
         limitValue = parseInt(req.query.limit, 10);
         skip = parseInt(req.query.skip, 10);
         skip *= limitValue;
@@ -256,26 +259,26 @@ export function show(req, res) {
     }
     RegisterUser.findAll(query)
         .then((data) => {
-            console.log('data',data)
-            if(data) {
+            console.log('data', data)
+            if (data) {
                 /* getAllUser(results)
-                  .then((data) => { */
+                 .then((data) => { */
                 data.forEach((item) => {
-                    if(item.PM_User_Role) {
+                    if (item.PM_User_Role) {
                         item.PM_User_Role = item.PM_User_Role.split(',');
                         item.PM_User_Role = item.PM_User_Role.map(key => parseInt(key, 10),
                         );
                     }
                 });
                 data.forEach((user) => {
-                    if(user.PM_UserID === req.authData.PM_UserID) {
+                    if (user.PM_UserID === req.authData.PM_UserID) {
                         user.isCurrentUser = true;
                     } else {
                         user.isCurrentUser = false;
                     }
                 });
 
-                if(data && data.length > 0) {
+                if (data && data.length > 0) {
                     //console.log('data', data);
                     res.send(data);
                     // getImageUrl(res, data, 0, 'User_PP');
@@ -322,7 +325,7 @@ export function getCustomer(req, res) {
                 const obj = {};
                 obj.PM_UserID = item['Role.UserRole2.PM_UserID'];
                 obj.Name = item['Role.UserRole2.PM_User_FullName'];
-                if(obj.PM_UserID) {
+                if (obj.PM_UserID) {
                     userArr.push(obj);
                 }
             });
@@ -354,20 +357,20 @@ export function getUser(req, res) {
         }]
     })
         .then((result) => {
-            if(result) {
+            if (result) {
                 let data = [];
                 data[0] = result;
                 /* const results = [];
-                results[0] = result;
+                 results[0] = result;
                  getAllUser(results)
-                  .then((data) => { */
+                 .then((data) => { */
                 const userList = [];
                 data.forEach((item) => {
                     const newUser = {};
                     const newRole = {};
                     // if (userList.length > 0) {
                     const index = userList.findIndex(u => u.PM_UserID === item.PM_UserID);
-                    if(index >= 0) { // user is already in userList just push role of that user in Role
+                    if (index >= 0) { // user is already in userList just push role of that user in Role
                         // newRole.ID = item['User.roleID'];
                         // newRole.Description = item['User.UserRole1.Description'];
                         // userList[index].PM_User_Role.push(newRole);
@@ -403,7 +406,7 @@ export function getUser(req, res) {
                     item.PM_User_Role = item.PM_User_Role.toString();
                 });
                 data = userList;
-                if(data && data.length > 0) {
+                if (data && data.length > 0) {
                     return getSingleImage(data[0], 'login')
                         .then(data1 => res.send(data1))
                         .catch(data1 => res.send(data1));
@@ -442,21 +445,20 @@ export function update(req, res) {
     insertInto(req.body, 'update')
         .then((filePath) => {
             /* if (filePath) {
-              req.body.PM_User_ProfilePic = `image-${req.body.PM_User_MobileNumber}.${filePath.split('.')
-                .pop()}`;
-            } else {
-              req.body.PM_User_ProfilePic = filePath;
-            } */
+             req.body.PM_User_ProfilePic = `image-${req.body.PM_User_MobileNumber}.${filePath.split('.')
+             .pop()}`;
+             } else {
+             req.body.PM_User_ProfilePic = filePath;
+             } */
             delete req.body.PM_User_ProfilePic;
             RegisterUser.update(req.body,
                 {where: {PM_UserID: req.body.PM_UserID}})
                 .then((results) => {
-                    if(results[0] === 1) {
+                    if (results[0] === 1) {
                         UserRole.update({status: 0}, {
                             where: {
                                 userID: req.body.PM_UserID,
-                                clientID:
-                                req.authData.PM_Client_ID
+                                clientID: req.authData.PM_Client_ID
                             }
                         })
                             .then((result11) => {
@@ -469,8 +471,8 @@ export function update(req, res) {
                                     userRoleObj.status = 1;
                                     UserRole.create(userRoleObj)
                                         .then((s) => {
-                                            if(index1 === roleList.length - 1) {
-                                                if(bodyForImage.imageData) {
+                                            if (index1 === roleList.length - 1) {
+                                                if (bodyForImage.imageData) {
                                                     // return saveImageBackEnd(bodyForImage)
                                                     // .then(() =>
                                                     res.status(200)
@@ -501,13 +503,13 @@ export function role(req, res) {
     //req.authData={};
     //req.authData.PM_Client_ID="1";
     Role.findAll({
-        where: {Status: 1, PM_Client_ID: req.authData.PM_Client_ID},
-        order: [
-            ['ID', 'DESC'],
-        ],
-        attributes: ['ID', 'Description'],
-        raw: true
-    },
+            where: {Status: 1, PM_Client_ID: req.authData.PM_Client_ID},
+            order: [
+                ['ID', 'DESC'],
+            ],
+            attributes: ['ID', 'Description'],
+            raw: true
+        },
     )
         .then((obj) => {
             res.json(obj);
@@ -522,7 +524,7 @@ export function getResources(req, res) {
     let likeCause = '';
     let limitValue;
     let skip;
-    if(req.query.q) {
+    if (req.query.q) {
         likeCause = req.query.q;
     }
     const query = {
@@ -553,7 +555,7 @@ export function getResources(req, res) {
             }],
         }],
     };
-    if(req.query.limit && req.query.limit !== '' && req.query.skip && req.query.skip !== '') {
+    if (req.query.limit && req.query.limit !== '' && req.query.skip && req.query.skip !== '') {
         limitValue = parseInt(req.query.limit, 10);
         skip = parseInt(req.query.skip, 10);
         skip *= limitValue;
@@ -569,7 +571,7 @@ export function getResources(req, res) {
                 const newRole = {};
                 // if (userList.length > 0) {
                 const index = userList.findIndex(u => u.PM_UserID === item.PM_UserID);
-                if(index >= 0) { // user is already in userList just push role of that user in Role
+                if (index >= 0) { // user is already in userList just push role of that user in Role
                     newRole.ID = item['User.roleID'];
                     newRole.Description = item['User.UserRole1.Description'];
                     userList[index].PM_User_Role.push(newRole);
@@ -609,7 +611,11 @@ export function getResources(req, res) {
                 .then((roles) => {
                     // res.send(data);
                     userResource.findAll({
-                        where: {resource_client_id: Number(req.authData.PM_Client_ID), resource_project_id: Number(req.params.projectId), resource_status: 1},
+                        where: {
+                            resource_client_id: Number(req.authData.PM_Client_ID),
+                            resource_project_id: Number(req.params.projectId),
+                            resource_status: 1
+                        },
                         order: [
                             ['resource_project_id', 'DESC'],
                         ],
@@ -619,14 +625,14 @@ export function getResources(req, res) {
                         .then((userResources) => {
                             data.forEach((user) => {
                                 user.updateResource = false;
-                                if(user.PM_User_Role) {
+                                if (user.PM_User_Role) {
                                     user.PM_User_Role = user.PM_User_Role.split(',');
                                     user.PM_User_Role = user.PM_User_Role.map(key => parseInt(key, 10),
                                     );
                                     user.role = [];
                                     user.PM_User_Role = user.PM_User_Role.map((roleId, index) => {
                                         const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                        if(userRole) {
+                                        if (userRole) {
                                             user.role[index] = {};
                                             user.role[index] = userRole[0];
                                         }
@@ -635,17 +641,17 @@ export function getResources(req, res) {
                                 }
 
                                 userResources.forEach((userRes) => {
-                                    if(parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
+                                    if (parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
                                         user.role = [];
                                         user.updateResource = true;
                                         user.resource_id = userRes.resource_id;
-                                        if(userRes.resource_user_role) {
+                                        if (userRes.resource_user_role) {
                                             userRes.resource_user_role = userRes.resource_user_role.split(',');
                                             userRes.resource_user_role = userRes.resource_user_role.map(key => parseInt(key, 10),
                                             );
                                             userRes.resource_user_role.forEach((roleId, index) => {
                                                 const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                                if(userRole) {
+                                                if (userRole) {
                                                     user.role[index] = {};
                                                     user.role[index] = userRole[0];
                                                 }
@@ -654,7 +660,7 @@ export function getResources(req, res) {
                                     }
                                 });
                             });
-                            if(data.length > 0) {
+                            if (data.length > 0) {
                                 // res.send({ status: 200, message: { success: true, data } });
                                 getImageUrl(res, data, 0, 'User_PP_Resource');
                             } else {
@@ -663,13 +669,13 @@ export function getResources(req, res) {
                         });
                 });
             /* }).catch((e) => {
-              res.status(409).json({
-                message: {
-                  success: true,
-                  data: 'Role not found',
-                },
-              });
-            }); */
+             res.status(409).json({
+             message: {
+             success: true,
+             data: 'Role not found',
+             },
+             });
+             }); */
         })
         .catch((e) => {
             res.status(409)
@@ -694,18 +700,30 @@ export function addResource(req, res) {
         PM_Client_ID: req.authData.PM_Client_ID,
         PM_Project_ID: req.body.projectId,
     };
-    userResource.findOrCreate({where: {resource_client_id: req.authData.PM_Client_ID, resource_user_id: req.body.userId, resource_project_id: req.body.projectId}, defaults: resource})
+    userResource.findOrCreate({
+        where: {
+            resource_client_id: req.authData.PM_Client_ID,
+            resource_user_id: req.body.userId,
+            resource_project_id: req.body.projectId
+        }, defaults: resource
+    })
         .spread((user, created) => {
-            if(!created) {
+            if (!created) {
                 userResource.update(resource,
-                    {where: {resource_client_id: req.authData.PM_Client_ID, resource_user_id: req.body.userId, resource_project_id: req.body.projectId}})
+                    {
+                        where: {
+                            resource_client_id: req.authData.PM_Client_ID,
+                            resource_user_id: req.body.userId,
+                            resource_project_id: req.body.projectId
+                        }
+                    })
                     .then((results) => {
-                        if(results[0] === 1) {
+                        if (results[0] === 1) {
                             res.status(200)
                                 .json({status: 200, data: {success: true, msg: 'User added to resource successfully'}});
                             showDetailsProject(body)
                                 .then((projectDetails) => {
-                                    if(projectDetails.length !== 0) {
+                                    if (projectDetails.length !== 0) {
                                         // console.log('projectDetails ', projectDetails);
                                         const bodyWelcome = {
                                             clientId: req.authData.PM_Client_ID,
@@ -753,7 +771,7 @@ export function addResource(req, res) {
                 res.send({status: 200, data: {success: true, msg: 'User added to resource successfully'}});
                 showDetailsProject(body)
                     .then((projectDetails) => {
-                        if(projectDetails.length !== 0) {
+                        if (projectDetails.length !== 0) {
                             // console.log('projectDetails ', projectDetails);
                             const bodyWelcome = {
                                 clientId: req.authData.PM_Client_ID,
@@ -799,7 +817,7 @@ export function updateResource(req, res) {
     userResource.update(resource,
         {where: {resource_client_id: req.authData.PM_Client_ID, resource_user_id: req.body.userId}})
         .then((results) => {
-            if(results[0] === 1) {
+            if (results[0] === 1) {
                 res.status(200)
                     .json({status: 200, data: {success: true, msg: 'User Updated Successfully'}});
             } else {
@@ -817,7 +835,7 @@ export function getOnlyResources(req, res) {
     let likeCause = '';
     let limitValue;
     let skip;
-    if(req.query.q) {
+    if (req.query.q) {
         likeCause = req.query.q;
     }
     // const query = {
@@ -878,7 +896,7 @@ export function getOnlyResources(req, res) {
                         const newRole = {};
                         // if (userList.length > 0) {
                         const index = userList.findIndex(u => u.PM_UserID === item.PM_UserID);
-                        if(index >= 0) { // user is already in userList just push role of that user in Role
+                        if (index >= 0) { // user is already in userList just push role of that user in Role
                             newRole.ID = item['User.roleID'];
                             newRole.Description = item['User.UserRole1.Description'];
                             userList[index].PM_User_Role.push(newRole);
@@ -918,7 +936,11 @@ export function getOnlyResources(req, res) {
                         .then((roles) => {
                             // res.send(data);
                             userResource.findAll({
-                                where: {resource_client_id: req.authData.PM_Client_ID, resource_project_id: Number(req.params.projectId), resource_status: 1},
+                                where: {
+                                    resource_client_id: req.authData.PM_Client_ID,
+                                    resource_project_id: Number(req.params.projectId),
+                                    resource_status: 1
+                                },
                                 order: [
                                     ['resource_project_id', 'DESC'],
                                 ],
@@ -926,16 +948,16 @@ export function getOnlyResources(req, res) {
                                 raw: true,
                             })
                                 .then((userResources) => {
-                                    if(userResources) {
+                                    if (userResources) {
                                         data.forEach((user) => {
                                             user.updateResource = false;
-                                            if(user.PM_User_Role) {
+                                            if (user.PM_User_Role) {
                                                 user.PM_User_Role = user.PM_User_Role.split(',');
                                                 user.PM_User_Role = user.PM_User_Role.map(key => parseInt(key, 10));
                                                 user.role = [];
                                                 user.PM_User_Role = user.PM_User_Role.map((roleId, index) => {
                                                     const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                                    if(userRole) {
+                                                    if (userRole) {
                                                         user.role[index] = {};
                                                         user.role[index] = userRole[0];
                                                     }
@@ -944,17 +966,17 @@ export function getOnlyResources(req, res) {
                                             }
 
                                             userResources.forEach((userRes) => {
-                                                if(parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
+                                                if (parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
                                                     user.role = [];
                                                     user.resource_id = userRes.resource_id;
                                                     user.updateResource = true;
-                                                    if(userRes.resource_user_role) {
+                                                    if (userRes.resource_user_role) {
                                                         userRes.resource_user_role = userRes.resource_user_role.split(',');
                                                         userRes.resource_user_role = userRes.resource_user_role.map(key => parseInt(key, 10),
                                                         );
                                                         userRes.resource_user_role.forEach((roleId, index) => {
                                                             const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                                            if(userRole) {
+                                                            if (userRole) {
                                                                 user.role[index] = {};
                                                                 user.role[index] = userRole[0];
                                                             }
@@ -966,7 +988,7 @@ export function getOnlyResources(req, res) {
                                             });
                                         });
                                     }
-                                    if(resourceData.length > 0) {
+                                    if (resourceData.length > 0) {
                                         res.send({status: 200, message: {success: true, data: resourceData}});
                                     } else {
                                         res.send({status: 200, message: {success: false, data: 'Add Your Resources'}});
@@ -979,19 +1001,19 @@ export function getOnlyResources(req, res) {
 }
 
 export function getOnlyResourcesForMultipleProjects(req, res) {
-    if(req.body.projectList.length !== 0 && req.body.roles.length !== 0) {
+    if (req.body.projectList.length !== 0 && req.body.roles.length !== 0) {
         // for project and roles based
         const projectIds = [];
         const roleIds = [];
-        for(let i = 0; i < req.body.projectList.length; i += 1) {
+        for (let i = 0; i < req.body.projectList.length; i += 1) {
             projectIds.push(req.body.projectList[i].PM_Project_ID);
         }
-        for(let i = 0; i < req.body.roles.length; i += 1) {
+        for (let i = 0; i < req.body.roles.length; i += 1) {
             roleIds.push(req.body.roles[i].ID);
         }
 
-        if(req.body.isWeb || req.body.isMob) {
-            if(!req.body.isMob && req.body.isWeb) {
+        if (req.body.isWeb || req.body.isMob) {
+            if (!req.body.isMob && req.body.isWeb) {
                 // Web User
                 RegisterUser.findAll({
                     where: {
@@ -1042,7 +1064,7 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     .catch((err) => {
                         res.json(err);
                     });
-            } else if(!req.body.isWeb && req.body.isMob) {
+            } else if (!req.body.isWeb && req.body.isMob) {
                 // Mob User
                 RegisterUser.findAll({
                     where: {
@@ -1093,7 +1115,7 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     .catch((err) => {
                         res.json(err);
                     });
-            } else if(req.body.isWeb && req.body.isMob) {
+            } else if (req.body.isWeb && req.body.isMob) {
                 // Web & Mob User
                 RegisterUser.findAll({
                     where: {
@@ -1186,14 +1208,14 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     res.json(err);
                 });
         }
-    } else if(req.body.projectList.length !== 0) {
+    } else if (req.body.projectList.length !== 0) {
         // project list
         const projectIds = [];
-        for(let i = 0; i < req.body.projectList.length; i += 1) {
+        for (let i = 0; i < req.body.projectList.length; i += 1) {
             projectIds.push(req.body.projectList[i].PM_Project_ID);
         }
-        if(req.body.isWeb || req.body.isMob) {
-            if(!req.body.isMob && req.body.isWeb) {
+        if (req.body.isWeb || req.body.isMob) {
+            if (!req.body.isMob && req.body.isWeb) {
                 // Web User
                 RegisterUser.findAll({
                     where: {
@@ -1204,7 +1226,11 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                         {
                             model: userResource,
                             as: 'UserResource',
-                            where: {resource_project_id: {[Sequelize.Op.in]: projectIds}, resource_client_id: req.authData.PM_Client_ID, resource_status: true},
+                            where: {
+                                resource_project_id: {[Sequelize.Op.in]: projectIds},
+                                resource_client_id: req.authData.PM_Client_ID,
+                                resource_status: true
+                            },
                             attributes: ['resource_user_id'],
                             include: [{
                                 model: resourceRole,
@@ -1239,7 +1265,7 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     .catch((err) => {
                         res.json(err);
                     });
-            } else if(!req.body.isWeb && req.body.isMob) {
+            } else if (!req.body.isWeb && req.body.isMob) {
                 // Mob User
                 RegisterUser.findAll({
                     where: {
@@ -1250,7 +1276,11 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                         {
                             model: userResource,
                             as: 'UserResource',
-                            where: {resource_project_id: {[Sequelize.Op.in]: projectIds}, resource_client_id: req.authData.PM_Client_ID, resource_status: true},
+                            where: {
+                                resource_project_id: {[Sequelize.Op.in]: projectIds},
+                                resource_client_id: req.authData.PM_Client_ID,
+                                resource_status: true
+                            },
                             attributes: ['resource_user_id'],
                             include: [{
                                 model: resourceRole,
@@ -1285,7 +1315,7 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     .catch((err) => {
                         res.json(err);
                     });
-            } else if(req.body.isWeb && req.body.isMob) {
+            } else if (req.body.isWeb && req.body.isMob) {
                 // Web & Mob User
                 RegisterUser.findAll({
                     where: {
@@ -1296,7 +1326,11 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                         {
                             model: userResource,
                             as: 'UserResource',
-                            where: {resource_project_id: {[Sequelize.Op.in]: projectIds}, resource_client_id: req.authData.PM_Client_ID, resource_status: true},
+                            where: {
+                                resource_project_id: {[Sequelize.Op.in]: projectIds},
+                                resource_client_id: req.authData.PM_Client_ID,
+                                resource_status: true
+                            },
                             attributes: ['resource_user_id'],
                             include: [{
                                 model: resourceRole,
@@ -1342,7 +1376,11 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     {
                         model: userResource,
                         as: 'UserResource',
-                        where: {resource_project_id: {[Sequelize.Op.in]: projectIds}, resource_client_id: req.authData.PM_Client_ID, resource_status: true},
+                        where: {
+                            resource_project_id: {[Sequelize.Op.in]: projectIds},
+                            resource_client_id: req.authData.PM_Client_ID,
+                            resource_status: true
+                        },
                         attributes: ['resource_user_id'],
                     },
                 ],
@@ -1363,14 +1401,14 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     res.json(err);
                 });
         }
-    } else if(req.body.roles.length !== 0) {
+    } else if (req.body.roles.length !== 0) {
         // roles based done
         const roleList = [];
-        for(let i = 0; i < req.body.roles.length; i += 1) {
+        for (let i = 0; i < req.body.roles.length; i += 1) {
             roleList.push(req.body.roles[i].ID);
         }
-        if(req.body.isWeb || req.body.isMob) {
-            if(!req.body.isMob && req.body.isWeb) {
+        if (req.body.isWeb || req.body.isMob) {
+            if (!req.body.isMob && req.body.isWeb) {
                 // Web User
                 RegisterUser.findAll({
                     where: {
@@ -1381,7 +1419,11 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                         {
                             model: UserRole,
                             as: 'User',
-                            where: {roleID: {[Sequelize.Op.in]: roleList}, clientID: req.authData.PM_Client_ID, Status: 1},
+                            where: {
+                                roleID: {[Sequelize.Op.in]: roleList},
+                                clientID: req.authData.PM_Client_ID,
+                                Status: 1
+                            },
                             attributes: ['roleID', 'userID'],
                             // required: false,
                             include: [{
@@ -1412,7 +1454,7 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     .catch((err) => {
                         res.json(err);
                     });
-            } else if(!req.body.isWeb && req.body.isMob) {
+            } else if (!req.body.isWeb && req.body.isMob) {
                 // Mob User
                 RegisterUser.findAll({
                     where: {
@@ -1423,7 +1465,11 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                         {
                             model: UserRole,
                             as: 'User',
-                            where: {roleID: {[Sequelize.Op.in]: roleList}, clientID: req.authData.PM_Client_ID, Status: 1},
+                            where: {
+                                roleID: {[Sequelize.Op.in]: roleList},
+                                clientID: req.authData.PM_Client_ID,
+                                Status: 1
+                            },
                             attributes: ['roleID', 'userID'],
                             include: [{
                                 model: Role,
@@ -1452,7 +1498,7 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     .catch((err) => {
                         res.json(err);
                     });
-            } else if(req.body.isWeb && req.body.isMob) {
+            } else if (req.body.isWeb && req.body.isMob) {
                 // Web & Mob User
                 RegisterUser.findAll({
                     where: {
@@ -1463,7 +1509,11 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                         {
                             model: UserRole,
                             as: 'User',
-                            where: {roleID: {[Sequelize.Op.in]: roleList}, clientID: req.authData.PM_Client_ID, Status: 1},
+                            where: {
+                                roleID: {[Sequelize.Op.in]: roleList},
+                                clientID: req.authData.PM_Client_ID,
+                                Status: 1
+                            },
                             attributes: ['roleID', 'userID'],
                             include: [{
                                 model: Role,
@@ -1503,7 +1553,11 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     {
                         model: UserRole,
                         as: 'User',
-                        where: {roleID: {[Sequelize.Op.in]: roleList}, clientID: req.authData.PM_Client_ID, Status: true},
+                        where: {
+                            roleID: {[Sequelize.Op.in]: roleList},
+                            clientID: req.authData.PM_Client_ID,
+                            Status: true
+                        },
                         attributes: ['roleID', 'userID'],
                     },
                 ],
@@ -1524,8 +1578,8 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                     res.json(err);
                 });
         }
-    } else if(req.body.isWeb || req.body.isMob) {
-        if(!req.body.isMob && req.body.isWeb) {
+    } else if (req.body.isWeb || req.body.isMob) {
+        if (!req.body.isMob && req.body.isWeb) {
             // Web User
             RegisterUser.findAll({
                 where: {
@@ -1567,7 +1621,7 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                 .catch((err) => {
                     res.json(err);
                 });
-        } else if(!req.body.isWeb && req.body.isMob) {
+        } else if (!req.body.isWeb && req.body.isMob) {
             // Mob User
             RegisterUser.findAll({
                 where: {
@@ -1607,7 +1661,7 @@ export function getOnlyResourcesForMultipleProjects(req, res) {
                 .catch((err) => {
                     res.json(err);
                 });
-        } else if(req.body.isWeb && req.body.isMob) {
+        } else if (req.body.isWeb && req.body.isMob) {
             // Web & Mob User
             RegisterUser.findAll({
                 where: {
@@ -1668,7 +1722,7 @@ export function removeResource(req, res) {
     userResource.update(resource,
         {where: {resource_id: req.body.resourceId}})
         .then((results) => {
-            if(results[0] === 1) {
+            if (results[0] === 1) {
                 userResource.findOne({where: {resource_id: resourceId}})
                     .then((result) => {
                         resourceId = result.resource_user_id;
@@ -1680,19 +1734,19 @@ export function removeResource(req, res) {
                             }
                         })
                             .then((task) => {
-                                for(let i = 0; i < task.length; i += 1) {
+                                for (let i = 0; i < task.length; i += 1) {
                                     const obj = {};
 
                                     obj.assignee = task[i].PM_Task_Assignee;
-                                    if(obj.assignee === resourceId) {
+                                    if (obj.assignee === resourceId) {
                                         obj.assignee = null;
                                     }
                                     obj.auditor = task[i].PM_Task_Auditor;
-                                    if(obj.auditor === resourceId) {
+                                    if (obj.auditor === resourceId) {
                                         obj.auditor = null;
                                     }
                                     obj.approver = task[i].PM_Task_Approver;
-                                    if(obj.approver === resourceId) {
+                                    if (obj.approver === resourceId) {
                                         obj.approver = null;
                                     }
 
@@ -1717,21 +1771,21 @@ export function removeResource(req, res) {
                                     }
                                 })
                                     .then((mile) => {
-                                        for(let i = 0; i < mile.length; i += 1) {
+                                        for (let i = 0; i < mile.length; i += 1) {
                                             const obj = {};
 
                                             obj.assignee = mile[i].PM_Milestone_Assignee;
-                                            if(obj.assignee === resourceId) {
+                                            if (obj.assignee === resourceId) {
                                                 obj.assignee = null;
                                             }
 
                                             obj.auditor = mile[i].PM_Milestone_Auditor;
-                                            if(obj.auditor === resourceId) {
+                                            if (obj.auditor === resourceId) {
                                                 obj.auditor = null;
                                             }
 
                                             obj.approver = mile[i].PM_Milestone_Approver;
-                                            if(obj.approver === resourceId) {
+                                            if (obj.approver === resourceId) {
                                                 obj.approver = null;
                                             }
 
@@ -1757,21 +1811,21 @@ export function removeResource(req, res) {
                                     }
                                 })
                                     .then((subproject) => {
-                                        for(let i = 0; i < subproject.length; i += 1) {
+                                        for (let i = 0; i < subproject.length; i += 1) {
                                             const obj = {};
 
                                             obj.assignee = subproject[i].PM_SubProject_Assignee;
-                                            if(obj.assignee === resourceId) {
+                                            if (obj.assignee === resourceId) {
                                                 obj.assignee = null;
                                             }
 
                                             obj.auditor = subproject[i].PM_SubProject_Auditor;
-                                            if(obj.auditor === resourceId) {
+                                            if (obj.auditor === resourceId) {
                                                 obj.auditor = null;
                                             }
 
                                             obj.approver = subproject[i].PM_SubProject_Approver;
-                                            if(obj.approver === resourceId) {
+                                            if (obj.approver === resourceId) {
                                                 obj.approver = null;
                                             }
 
@@ -1797,11 +1851,11 @@ export function removeResource(req, res) {
                                     }
                                 })
                                     .then((audit) => {
-                                        for(let i = 0; i < audit.length; i += 1) {
+                                        for (let i = 0; i < audit.length; i += 1) {
                                             const obj = {};
 
                                             obj.PM_Auditor_ID = audit[i].PM_Auditor_ID;
-                                            if(obj.PM_Auditor_ID === resourceId) {
+                                            if (obj.PM_Auditor_ID === resourceId) {
                                                 obj.PM_Auditor_ID = null;
                                             }
 
@@ -1826,11 +1880,11 @@ export function removeResource(req, res) {
                                     }
                                 })
                                     .then((approve) => {
-                                        for(let i = 0; i < approve.length; i += 1) {
+                                        for (let i = 0; i < approve.length; i += 1) {
                                             const obj = {};
 
                                             obj.Approver_UserID = approve[i].Approver_UserID;
-                                            if(obj.Approver_UserID === resourceId) {
+                                            if (obj.Approver_UserID === resourceId) {
                                                 obj.Approver_UserID = null;
                                             }
 
@@ -1846,10 +1900,16 @@ export function removeResource(req, res) {
                                             })
                                                 .then(() => {
                                                     res.status(200)
-                                                        .json({status: 200, data: {success: true, msg: 'User removed from resource Successfully'}});
+                                                        .json({
+                                                            status: 200,
+                                                            data: {
+                                                                success: true,
+                                                                msg: 'User removed from resource Successfully'
+                                                            }
+                                                        });
                                                     showDetailsProject(body)
                                                         .then((projectDetails) => {
-                                                            if(projectDetails.length !== 0) {
+                                                            if (projectDetails.length !== 0) {
                                                                 // console.log('projectDetails ', projectDetails);
                                                                 const bodyWelcome = {
                                                                     clientId: req.authData.PM_Client_ID,
@@ -1911,7 +1971,7 @@ export function getUniqueUser(req, res) {
     };
     RegisterUser.findOne(condition)
         .then((user) => {
-            if(user) {
+            if (user) {
                 res.json({
                     status: 200,
                     message: {
@@ -1951,8 +2011,8 @@ export function createNewUser(req, res) {
     insertInto(userAdd, 'new')
         .then((Obj) => {
             console.log('insertInto', Obj);
-            if(Obj.userCount <= Obj.maxUserAllow) {
-                if(Obj.filePath) {
+            if (Obj.userCount <= Obj.maxUserAllow) {
+                if (Obj.filePath) {
                     userAdd.PM_User_ProfilePic = `image-${userAdd.PM_User_MobileNumber}.${Obj.filePath.split('.')
                         .pop()}`;
                 } else {
@@ -1979,7 +2039,7 @@ export function createNewUser(req, res) {
                     .spread((user, created) => {
                         console.log('insertInto', userAdd);
                         console.log('insertIntosssss', user, created);
-                        if(created) {
+                        if (created) {
                             const roleList = userAdd.PM_User_Role.split(',');
                             console.log('roleList', roleList);
                             roleList.forEach((roleID, index1) => {
@@ -1991,7 +2051,7 @@ export function createNewUser(req, res) {
                                 userRoleObj.status = 1;
                                 UserRole.create(userRoleObj)
                                     .then((s) => {
-                                        if(index1 === roleList.length - 1) {
+                                        if (index1 === roleList.length - 1) {
                                             req.body.PM_UserID = user.PM_UserID;
                                             const bodyWelcome = {
                                                 clientId: req.authData.PM_Client_ID,
@@ -2023,33 +2083,33 @@ export function createNewUser(req, res) {
                                                     console.log('e e ', e);
                                                 });
 
-                                            if(bodyForImage.imageData) {
+                                            if (bodyForImage.imageData) {
                                                 bodyForImage.PM_UserID = user.PM_UserID;
                                                 /* by  amit return saveImageBackEnd(bodyForImage)
-                                                    .then(() => res.send({
-                                                            success: true,
-                                                            msg: 'User Created Successfully',
-                                                        },
-                                                    ))
-                                                    .catch(() => res.send({
-                                                            success: true,
-                                                            msg: 'User Created Successfully',
-                                                        },
-                                                    ));*/
+                                                 .then(() => res.send({
+                                                 success: true,
+                                                 msg: 'User Created Successfully',
+                                                 },
+                                                 ))
+                                                 .catch(() => res.send({
+                                                 success: true,
+                                                 msg: 'User Created Successfully',
+                                                 },
+                                                 ));*/
                                             }
                                             return res.send({
-                                                success: true,
-                                                msg: 'User Created Successfully',
-                                            },
+                                                    success: true,
+                                                    msg: 'User Created Successfully',
+                                                },
                                             );
                                         }
                                     });
                             });
                         } else {
                             res.send({
-                                success: false,
-                                msg: 'User already in your domain'
-                            },
+                                    success: false,
+                                    msg: 'User already in your domain'
+                                },
                             );
                         }
                     })
@@ -2072,7 +2132,7 @@ export function getResourcesOfProjectByName(req, res) {
     let likeCause = '';
     let limitValue;
     let skip;
-    if(req.query.q) {
+    if (req.query.q) {
         likeCause = req.query.q;
     }
     const query = {
@@ -2089,7 +2149,7 @@ export function getResourcesOfProjectByName(req, res) {
             'PM_User_Village', 'PM_User_Pincode', 'PM_Designation', 'PM_User_ProfilePic'],
         raw: true,
     };
-    if(req.query.limit && req.query.limit !== '' && req.query.skip && req.query.skip !== '') {
+    if (req.query.limit && req.query.limit !== '' && req.query.skip && req.query.skip !== '') {
         limitValue = parseInt(req.query.limit, 10);
         skip = parseInt(req.query.skip, 10);
         skip *= limitValue;
@@ -2111,7 +2171,11 @@ export function getResourcesOfProjectByName(req, res) {
                 .then((roles) => {
                     // res.send(data);
                     userResource.findAll({
-                        where: {resource_client_id: Number(req.authData.PM_Client_ID), resource_project_id: Number(req.params.projectId), resource_status: 1},
+                        where: {
+                            resource_client_id: Number(req.authData.PM_Client_ID),
+                            resource_project_id: Number(req.params.projectId),
+                            resource_status: 1
+                        },
                         order: [
                             ['resource_project_id', 'DESC'],
                         ],
@@ -2121,14 +2185,14 @@ export function getResourcesOfProjectByName(req, res) {
                         .then((userResources) => {
                             data.forEach((user) => {
                                 user.updateResource = false;
-                                if(user.PM_User_Role) {
+                                if (user.PM_User_Role) {
                                     user.PM_User_Role = user.PM_User_Role.split(',');
                                     user.PM_User_Role = user.PM_User_Role.map(key => parseInt(key, 10),
                                     );
                                     user.role = [];
                                     user.PM_User_Role = user.PM_User_Role.map((roleId, index) => {
                                         const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                        if(userRole) {
+                                        if (userRole) {
                                             user.role[index] = {};
                                             user.role[index] = userRole[0];
                                         }
@@ -2136,17 +2200,17 @@ export function getResourcesOfProjectByName(req, res) {
                                     });
                                 }
                                 userResources.forEach((userRes) => {
-                                    if(parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
+                                    if (parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
                                         user.role = [];
                                         user.updateResource = true;
                                         user.resource_id = userRes.resource_id;
-                                        if(userRes.resource_user_role) {
+                                        if (userRes.resource_user_role) {
                                             userRes.resource_user_role = userRes.resource_user_role.split(',');
                                             userRes.resource_user_role = userRes.resource_user_role.map(key => parseInt(key, 10),
                                             );
                                             userRes.resource_user_role.forEach((roleId, index) => {
                                                 const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                                if(userRole) {
+                                                if (userRole) {
                                                     user.role[index] = {};
                                                     user.role[index] = userRole[0];
                                                 }
@@ -2156,7 +2220,7 @@ export function getResourcesOfProjectByName(req, res) {
                                     }
                                 });
                             });
-                            if(resource.length > 0) {
+                            if (resource.length > 0) {
                                 // res.send({ status: 200, message: { success: true, data: resource } });
                                 getImageUrl(res, resource, 0, 'User_PP_Resource');
                             } else {
@@ -2165,13 +2229,13 @@ export function getResourcesOfProjectByName(req, res) {
                         });
                 });
             /* }).catch((e) => {
-              res.status(409).json({
-                message: {
-                  success: true,
-                  data: 'Role not found',
-                },
-              });
-            }); */
+             res.status(409).json({
+             message: {
+             success: true,
+             data: 'Role not found',
+             },
+             });
+             }); */
         })
         .catch((e) => {
             res.status(409)
@@ -2229,9 +2293,9 @@ function sendNotification(req) {
 
     showDetailsProject(body)
         .then((projectDetails) => {
-            if(projectDetails.length !== 0) {
+            if (projectDetails.length !== 0) {
                 // console.log('projectDetails ', projectDetails);
-                if(req.body.msgType === 'resource') {
+                if (req.body.msgType === 'resource') {
                     const bodyWelcome = {
                         clientId: req.authData.PM_Client_ID,
                         senderId: req.authData.PM_UserID,
@@ -2255,7 +2319,7 @@ function sendNotification(req) {
                     };
                     saveEmailSmsBacked(bodyWelcome);
                     // screen notifications
-                    for(let i = 0; i < req.body.rolesData.length; i += 1) {
+                    for (let i = 0; i < req.body.rolesData.length; i += 1) {
                         const users = [{PM_UserID: req.body.userId}];
                         const bodyScreen = {
                             body: {
@@ -2276,7 +2340,7 @@ function sendNotification(req) {
 
                         saveScreenBackend(bodyScreen);
                     }
-                } else if(req.body.msgType === 'resourceRemove') {
+                } else if (req.body.msgType === 'resourceRemove') {
                     const bodyWelcome = {
                         clientId: req.authData.PM_Client_ID,
                         senderId: req.authData.PM_UserID,
@@ -2304,7 +2368,7 @@ function sendNotification(req) {
                     };
                     saveEmailSmsBacked(bodyWelcome);
                     // screen notifications
-                    for(let i = 0; i < req.body.rolesData.length; i += 1) {
+                    for (let i = 0; i < req.body.rolesData.length; i += 1) {
                         const users = [{PM_UserID: req.body.userId}];
                         const bodyScreen = {
                             body: {
@@ -2349,24 +2413,44 @@ export function addResourceNew(req, res) {
             resource_status: 1,
         };
         userResource.findOrCreate({
-            where: {resource_client_id: req.authData.PM_Client_ID, resource_user_id: req.body.userId, resource_project_id: req.body.projectId, resource_user_role: roleID},
+            where: {
+                resource_client_id: req.authData.PM_Client_ID,
+                resource_user_id: req.body.userId,
+                resource_project_id: req.body.projectId,
+                resource_user_role: roleID
+            },
             defaults: resource
         })
             .spread((user, created) => {
-                if(!created) {
+                if (!created) {
                     userResource.update(resource,
-                        {where: {resource_client_id: req.authData.PM_Client_ID, resource_user_id: req.body.userId, resource_project_id: req.body.projectId, resource_user_role: roleID}})
+                        {
+                            where: {
+                                resource_client_id: req.authData.PM_Client_ID,
+                                resource_user_id: req.body.userId,
+                                resource_project_id: req.body.projectId,
+                                resource_user_role: roleID
+                            }
+                        })
                         .then((results) => {
-                            if(results[0] === 1) {
+                            if (results[0] === 1) {
                                 resourceRole.update({
                                     resource_role_resource_id: user.resource_id,
                                     resource_role_role_id: roleID,
                                     resource_role_status: true
-                                }, {where: {resource_role_resource_id: user.resource_id, resource_role_role_id: roleID}})
+                                }, {
+                                    where: {
+                                        resource_role_resource_id: user.resource_id,
+                                        resource_role_role_id: roleID
+                                    }
+                                })
                                     .then(() => {
-                                        if(index1 === roleList.length - 1) {
+                                        if (index1 === roleList.length - 1) {
                                             res.status(200)
-                                                .json({status: 200, data: {success: true, msg: 'User added to resource successfully'}});
+                                                .json({
+                                                    status: 200,
+                                                    data: {success: true, msg: 'User added to resource successfully'}
+                                                });
                                             req.body.msgType = 'resource';
                                             sendNotification(req);
                                         }
@@ -2381,10 +2465,17 @@ export function addResourceNew(req, res) {
                                 .json({status: 200, data: {success: false, msg: err}});
                         });
                 } else {
-                    resourceRole.create({resource_role_resource_id: user.resource_id, resource_role_role_id: roleID, resource_role_status: true})
+                    resourceRole.create({
+                        resource_role_resource_id: user.resource_id,
+                        resource_role_role_id: roleID,
+                        resource_role_status: true
+                    })
                         .then(() => {
-                            if(index1 === roleList.length - 1) {
-                                res.send({status: 200, data: {success: true, msg: 'User added to resource successfully'}});
+                            if (index1 === roleList.length - 1) {
+                                res.send({
+                                    status: 200,
+                                    data: {success: true, msg: 'User added to resource successfully'}
+                                });
                                 req.body.msgType = 'resource';
                                 sendNotification(req);
                             }
@@ -2408,9 +2499,15 @@ export function removeResourceNew(req, res) {
         PM_Project_ID: req.body.projectId,
     };
     userResource.update(resource,
-        {where: {resource_client_id: req.authData.PM_Client_ID, resource_project_id: req.body.projectId, resource_user_id: req.body.userId}})
+        {
+            where: {
+                resource_client_id: req.authData.PM_Client_ID,
+                resource_project_id: req.body.projectId,
+                resource_user_id: req.body.userId
+            }
+        })
         .then((results) => {
-            if(results[0] > 0) {
+            if (results[0] > 0) {
                 // userResource.findOne({ where: { resource_client_id: req.authData.PM_Client_ID, resource_project_id: req.body.projectId, resource_user_id: req.body.userId } })
                 //   .then((result) => {
                 resourceId = req.body.userId;
@@ -2422,19 +2519,19 @@ export function removeResourceNew(req, res) {
                     }
                 })
                     .then((task) => {
-                        for(let i = 0; i < task.length; i += 1) {
+                        for (let i = 0; i < task.length; i += 1) {
                             const obj = {};
 
                             obj.assignee = task[i].PM_Task_Assignee;
-                            if(obj.assignee === resourceId) {
+                            if (obj.assignee === resourceId) {
                                 obj.assignee = null;
                             }
                             obj.auditor = task[i].PM_Task_Auditor;
-                            if(obj.auditor === resourceId) {
+                            if (obj.auditor === resourceId) {
                                 obj.auditor = null;
                             }
                             obj.approver = task[i].PM_Task_Approver;
-                            if(obj.approver === resourceId) {
+                            if (obj.approver === resourceId) {
                                 obj.approver = null;
                             }
 
@@ -2459,21 +2556,21 @@ export function removeResourceNew(req, res) {
                             }
                         })
                             .then((mile) => {
-                                for(let i = 0; i < mile.length; i += 1) {
+                                for (let i = 0; i < mile.length; i += 1) {
                                     const obj = {};
 
                                     obj.assignee = mile[i].PM_Milestone_Assignee;
-                                    if(obj.assignee === resourceId) {
+                                    if (obj.assignee === resourceId) {
                                         obj.assignee = null;
                                     }
 
                                     obj.auditor = mile[i].PM_Milestone_Auditor;
-                                    if(obj.auditor === resourceId) {
+                                    if (obj.auditor === resourceId) {
                                         obj.auditor = null;
                                     }
 
                                     obj.approver = mile[i].PM_Milestone_Approver;
-                                    if(obj.approver === resourceId) {
+                                    if (obj.approver === resourceId) {
                                         obj.approver = null;
                                     }
 
@@ -2499,21 +2596,21 @@ export function removeResourceNew(req, res) {
                             }
                         })
                             .then((subproject) => {
-                                for(let i = 0; i < subproject.length; i += 1) {
+                                for (let i = 0; i < subproject.length; i += 1) {
                                     const obj = {};
 
                                     obj.assignee = subproject[i].PM_SubProject_Assignee;
-                                    if(obj.assignee === resourceId) {
+                                    if (obj.assignee === resourceId) {
                                         obj.assignee = null;
                                     }
 
                                     obj.auditor = subproject[i].PM_SubProject_Auditor;
-                                    if(obj.auditor === resourceId) {
+                                    if (obj.auditor === resourceId) {
                                         obj.auditor = null;
                                     }
 
                                     obj.approver = subproject[i].PM_SubProject_Approver;
-                                    if(obj.approver === resourceId) {
+                                    if (obj.approver === resourceId) {
                                         obj.approver = null;
                                     }
 
@@ -2539,11 +2636,11 @@ export function removeResourceNew(req, res) {
                             }
                         })
                             .then((audit) => {
-                                for(let i = 0; i < audit.length; i += 1) {
+                                for (let i = 0; i < audit.length; i += 1) {
                                     const obj = {};
 
                                     obj.PM_Auditor_ID = audit[i].PM_Auditor_ID;
-                                    if(obj.PM_Auditor_ID === resourceId) {
+                                    if (obj.PM_Auditor_ID === resourceId) {
                                         obj.PM_Auditor_ID = null;
                                     }
 
@@ -2567,17 +2664,20 @@ export function removeResourceNew(req, res) {
                             }
                         })
                             .then((approve) => {
-                                if(approve.length < 1) {
+                                if (approve.length < 1) {
                                     res.status(200)
-                                        .json({status: 200, data: {success: true, msg: 'User removed from resource Successfully'}});
+                                        .json({
+                                            status: 200,
+                                            data: {success: true, msg: 'User removed from resource Successfully'}
+                                        });
                                     req.body.msgType = 'resourceRemove';
                                     sendNotification(req);
                                 }
-                                for(let i = 0; i < approve.length; i += 1) {
+                                for (let i = 0; i < approve.length; i += 1) {
                                     const obj = {};
 
                                     obj.Approver_UserID = approve[i].Approver_UserID;
-                                    if(obj.Approver_UserID === resourceId) {
+                                    if (obj.Approver_UserID === resourceId) {
                                         obj.Approver_UserID = null;
                                     }
 
@@ -2592,7 +2692,13 @@ export function removeResourceNew(req, res) {
                                     })
                                         .then(() => {
                                             res.status(200)
-                                                .json({status: 200, data: {success: true, msg: 'User removed from resource Successfully'}});
+                                                .json({
+                                                    status: 200,
+                                                    data: {
+                                                        success: true,
+                                                        msg: 'User removed from resource Successfully'
+                                                    }
+                                                });
                                             req.body.msgType = 'resourceRemove';
                                             sendNotification(req);
                                         });
@@ -2613,7 +2719,7 @@ export function getResources1(req, res) {
     let likeCause = '';
     let limitValue;
     let skip;
-    if(req.query.q) {
+    if (req.query.q) {
         likeCause = req.query.q;
     }
     const query = {
@@ -2645,7 +2751,7 @@ export function getResources1(req, res) {
             }],
         }],
     };
-    if(req.query.limit && req.query.limit !== '' && req.query.skip && req.query.skip !== '') {
+    if (req.query.limit && req.query.limit !== '' && req.query.skip && req.query.skip !== '') {
         limitValue = parseInt(req.query.limit, 10);
         skip = parseInt(req.query.skip, 10);
         skip *= limitValue;
@@ -2662,7 +2768,7 @@ export function getResources1(req, res) {
                         const newRole = {};
                         // if (userList.length > 0) {
                         const index = userList.findIndex(u => u.PM_UserID === item.PM_UserID);
-                        if(index >= 0) { // user is already in userList just push role of that user in Role
+                        if (index >= 0) { // user is already in userList just push role of that user in Role
                             newRole.ID = item['User.roleID'];
                             newRole.Description = item['User.UserRole1.Description'];
                             userList[index].PM_User_Role.push(newRole);
@@ -2702,7 +2808,11 @@ export function getResources1(req, res) {
                         .then((roles) => {
                             // res.send(data);
                             userResource.findAll({
-                                where: {resource_client_id: Number(req.authData.PM_Client_ID), resource_project_id: Number(req.params.projectId), resource_status: 1},
+                                where: {
+                                    resource_client_id: Number(req.authData.PM_Client_ID),
+                                    resource_project_id: Number(req.params.projectId),
+                                    resource_status: 1
+                                },
                                 order: [
                                     ['resource_project_id', 'DESC'],
                                 ],
@@ -2712,14 +2822,14 @@ export function getResources1(req, res) {
                                 .then((userResources) => {
                                     data.forEach((user) => {
                                         user.updateResource = false;
-                                        if(user.PM_User_Role) {
+                                        if (user.PM_User_Role) {
                                             user.PM_User_Role = user.PM_User_Role.split(',');
                                             user.PM_User_Role = user.PM_User_Role.map(key => parseInt(key, 10),
                                             );
                                             user.role = [];
                                             user.PM_User_Role = user.PM_User_Role.map((roleId, index) => {
                                                 const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                                if(userRole) {
+                                                if (userRole) {
                                                     user.role[index] = {};
                                                     user.role[index] = userRole[0];
                                                 }
@@ -2728,17 +2838,17 @@ export function getResources1(req, res) {
                                         }
 
                                         userResources.forEach((userRes) => {
-                                            if(parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
+                                            if (parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
                                                 user.role = [];
                                                 user.updateResource = true;
                                                 user.resource_id = userRes.resource_id;
-                                                if(userRes.resource_user_role) {
+                                                if (userRes.resource_user_role) {
                                                     userRes.resource_user_role = userRes.resource_user_role.split(',');
                                                     userRes.resource_user_role = userRes.resource_user_role.map(key => parseInt(key, 10),
                                                     );
                                                     userRes.resource_user_role.forEach((roleId, index) => {
                                                         const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                                        if(userRole) {
+                                                        if (userRole) {
                                                             // user.role[index] = {};
                                                             // user.role[index] = userRole[0];
                                                             user.role.push(userRole[0]);
@@ -2748,7 +2858,7 @@ export function getResources1(req, res) {
                                             }
                                         });
                                     });
-                                    if(data.length > 0) {
+                                    if (data.length > 0) {
                                         res.send({status: 200, message: {success: true, data}});
                                     } else {
                                         res.send({status: 200, message: {success: false, data: 'No user found'}});
@@ -2782,7 +2892,7 @@ export function getOnlyResourcesNew(req, res) {
     let likeCause = '';
     let limitValue;
     let skip;
-    if(req.query.q) {
+    if (req.query.q) {
         likeCause = req.query.q;
     }
 
@@ -2823,7 +2933,7 @@ export function getOnlyResourcesNew(req, res) {
                 const newRole = {};
                 // if (userList.length > 0) {
                 const index = userList.findIndex(u => u.PM_UserID === item.PM_UserID);
-                if(index >= 0) { // user is already in userList just push role of that user in Role
+                if (index >= 0) { // user is already in userList just push role of that user in Role
                     newRole.ID = item['User.roleID'];
                     newRole.Description = item['User.UserRole1.Description'];
                     userList[index].PM_User_Role.push(newRole);
@@ -2864,7 +2974,11 @@ export function getOnlyResourcesNew(req, res) {
                 .then((roles) => {
                     // res.send(data);
                     userResource.findAll({
-                        where: {resource_client_id: req.authData.PM_Client_ID, resource_project_id: Number(req.params.projectId), resource_status: 1},
+                        where: {
+                            resource_client_id: req.authData.PM_Client_ID,
+                            resource_project_id: Number(req.params.projectId),
+                            resource_status: 1
+                        },
                         order: [
                             ['resource_project_id', 'DESC'],
                         ],
@@ -2872,16 +2986,16 @@ export function getOnlyResourcesNew(req, res) {
                         raw: true,
                     })
                         .then((userResources) => {
-                            if(userResources) {
+                            if (userResources) {
                                 data.forEach((user) => {
                                     user.updateResource = false;
-                                    if(user.PM_User_Role) {
+                                    if (user.PM_User_Role) {
                                         user.PM_User_Role = user.PM_User_Role.split(',');
                                         user.PM_User_Role = user.PM_User_Role.map(key => parseInt(key, 10));
                                         user.role = [];
                                         user.PM_User_Role = user.PM_User_Role.map((roleId, index) => {
                                             const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                            if(userRole) {
+                                            if (userRole) {
                                                 user.role[index] = {};
                                                 user.role[index] = userRole[0];
                                             }
@@ -2889,17 +3003,17 @@ export function getOnlyResourcesNew(req, res) {
                                         });
                                     }
                                     userResources.forEach((userRes) => {
-                                        if(parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
+                                        if (parseInt(userRes.resource_user_id, 10) === parseInt(user.PM_UserID, 10)) {
                                             // console.log('resource_user_id', userRes);
                                             user.role = [];
                                             user.resource_id = userRes.resource_id;
                                             user.updateResource = true;
-                                            if(userRes.resource_user_role) {
+                                            if (userRes.resource_user_role) {
                                                 userRes.resource_user_role = userRes.resource_user_role.split(',');
                                                 userRes.resource_user_role = userRes.resource_user_role.map(key => parseInt(key, 10));
                                                 userRes.resource_user_role.forEach((roleId, index) => {
                                                     const userRole = roles.filter(usrRole => roleId === usrRole.ID);
-                                                    if(userRole) {
+                                                    if (userRole) {
                                                         user.role[index] = {};
                                                         user.role[index] = userRole[0];
                                                     }
@@ -2907,10 +3021,10 @@ export function getOnlyResourcesNew(req, res) {
                                             }
 
                                             const resourceIndex = resourceData.findIndex(resr => resr.PM_UserID === userRes.resource_user_id);
-                                            if(resourceIndex !== -1) {
+                                            if (resourceIndex !== -1) {
                                                 user.role.forEach((roleId, index) => {
                                                     const resRoleIndex = resourceData[resourceIndex].role.findIndex(usrRole => roleId.ID === usrRole.ID);
-                                                    if(resRoleIndex === -1) {
+                                                    if (resRoleIndex === -1) {
                                                         resourceData[resourceIndex].role.push(roleId);
                                                     }
                                                 });
@@ -2921,7 +3035,7 @@ export function getOnlyResourcesNew(req, res) {
                                     });
                                 });
                             }
-                            if(resourceData.length > 0) {
+                            if (resourceData.length > 0) {
                                 // res.send({ status: 200, message: { success: true, data: resourceData } });
                                 getImageUrl(res, resourceData, 0, 'User_PP_Resource');
                             } else {
@@ -2938,7 +3052,7 @@ export function forgotPassword(req, res) {
     console.log('aaa', req.body);
     const condition = {
         where: Sequelize.and(
-            { PM_Domain: req.body.domainName, PM_User_Active: 1 },
+            {PM_Domain: req.body.domainName, PM_User_Active: 1},
             Sequelize.or(
                 {
                     PM_User_MobileNumber: req.body.PM_User_MobileNumber,
@@ -2950,7 +3064,7 @@ export function forgotPassword(req, res) {
         ),
     };
     RegisterUser.findOne({condition}).then((userObj) => {
-        if(userObj) {
+        if (userObj) {
             sendOTP(req.body.email, '11111111', req.body.domainName, 3, res);
         } else {
             res.json({status: false, msg: 'User Not found', data: req.body});
@@ -2966,43 +3080,43 @@ export function updatePassword(req, res) {
         }
     })
         .then((results) => {
-            if(results) {
+            if (results) {
                 console.log(results.PM_User_OTP, 'results.otp');
-                if(parseInt(results.PM_User_OTP, 10) === parseInt(req.body.otp, 10)) {
+                if (parseInt(results.PM_User_OTP, 10) === parseInt(req.body.otp, 10)) {
                     const timeDiff = (new Date().getTime()
                         - new Date(results.PM_User_OTPTime).getTime()) / 1000;
-                    if(timeDiff <= process.env.OTP_TIME) {
+                    if (timeDiff <= process.env.OTP_TIME) {
                         generatePassword(req.body.password)
                             .then((password) => {
-                                if(password !== results.PM_User_Login_PWD) {
+                                if (password !== results.PM_User_Login_PWD) {
                                     RegisterUser.update({
-                                        PM_User_Login_PWD: password,
-                                        PM_User_OTP: null,
-                                        PM_User_OTPTime: null,
-                                        PM_User_Status: true,
-                                        IsLock: false,
-                                    },
-                                    {
-                                        where: {
-                                            PM_User_Email_ID: req.body.email,
-                                            PM_Domain: req.body.domainName,
+                                            PM_User_Login_PWD: password,
+                                            PM_User_OTP: null,
+                                            PM_User_OTPTime: null,
+                                            PM_User_Status: true,
+                                            IsLock: false,
                                         },
-                                    })
+                                        {
+                                            where: {
+                                                PM_User_Email_ID: req.body.email,
+                                                PM_Domain: req.body.domainName,
+                                            },
+                                        })
                                         .then((results1) => {
-                                            if(results1[0] === 1) {
+                                            if (results1[0] === 1) {
                                                 RegisterClient.update({
-                                                    PM_Client_Password: password,
-                                                    PM_Client_OTP: null,
-                                                    PM_Client_OTPTime: null,
-                                                },
-                                                {
-                                                    where: {
-                                                        PM_Client_Email: req.body.email,
-                                                        PM_Client_Domain: req.body.domainName,
+                                                        PM_Client_Password: password,
+                                                        PM_Client_OTP: null,
+                                                        PM_Client_OTPTime: null,
                                                     },
-                                                })
+                                                    {
+                                                        where: {
+                                                            PM_Client_Email: req.body.email,
+                                                            PM_Client_Domain: req.body.domainName,
+                                                        },
+                                                    })
                                                     .then((results2) => {
-                                                       return res.status(200)
+                                                        return res.status(200)
                                                             .send({
                                                                 success: true,
                                                                 msg: 'password updated successfully',
@@ -3024,7 +3138,10 @@ export function updatePassword(req, res) {
                                         });
                                 } else {
                                     res
-                                        .send({success: false, msg: 'New password and old password should not be same'});
+                                        .send({
+                                            success: false,
+                                            msg: 'New password and old password should not be same'
+                                        });
                                 }
                             });
                     } else {
@@ -3054,7 +3171,7 @@ export function updateResourceNew(req, res) {
     // };
 
     updateRoles.forEach((roles, index) => {
-        if(roles.isAdded === true) {
+        if (roles.isAdded === true) {
             const resource = {
                 resource_client_id: req.authData.PM_Client_ID,
                 resource_user_id: req.body.userId,
@@ -3071,31 +3188,59 @@ export function updateResourceNew(req, res) {
                 }, defaults: resource
             })
                 .spread((user, created) => {
-                    if(!created) {
+                    if (!created) {
                         userResource.update(resource,
-                            {where: {resource_client_id: req.authData.PM_Client_ID, resource_user_id: req.body.userId, resource_project_id: req.body.projectId, resource_user_role: roles.roleID}})
+                            {
+                                where: {
+                                    resource_client_id: req.authData.PM_Client_ID,
+                                    resource_user_id: req.body.userId,
+                                    resource_project_id: req.body.projectId,
+                                    resource_user_role: roles.roleID
+                                }
+                            })
                             .then((results) => {
-                                if(results[0] === 1) {
+                                if (results[0] === 1) {
                                     resourceRole.findOrCreate({
-                                        where: {resource_role_resource_id: user.resource_id, resource_role_role_id: roles.roleID},
-                                        defaults: {resource_role_resource_id: user.resource_id, resource_role_role_id: roles.roleID, resource_role_status: true}
+                                        where: {
+                                            resource_role_resource_id: user.resource_id,
+                                            resource_role_role_id: roles.roleID
+                                        },
+                                        defaults: {
+                                            resource_role_resource_id: user.resource_id,
+                                            resource_role_role_id: roles.roleID,
+                                            resource_role_status: true
+                                        }
                                     })
                                         .then((resRole, resRoleCreated) => {
-                                            if(resRoleCreated) {
-                                                if(updateRoles.length - 1 === index) {
+                                            if (resRoleCreated) {
+                                                if (updateRoles.length - 1 === index) {
                                                     res.status(200)
-                                                        .json({status: 200, data: {success: true, msg: 'User Updated Successfully'}});
+                                                        .json({
+                                                            status: 200,
+                                                            data: {success: true, msg: 'User Updated Successfully'}
+                                                        });
                                                 }
                                             } else {
                                                 resourceRole.update({
                                                     resource_role_resource_id: user.resource_id,
                                                     resource_role_role_id: roles.roleID,
                                                     resource_role_status: true
-                                                }, {where: {resource_role_resource_id: user.resource_id, resource_role_role_id: roles.roleID}})
+                                                }, {
+                                                    where: {
+                                                        resource_role_resource_id: user.resource_id,
+                                                        resource_role_role_id: roles.roleID
+                                                    }
+                                                })
                                                     .then(() => {
-                                                        if(updateRoles.length - 1 === index) {
+                                                        if (updateRoles.length - 1 === index) {
                                                             res.status(200)
-                                                                .json({status: 200, data: {success: true, msg: 'User Updated Successfully'}});
+                                                                .json({
+                                                                    status: 200,
+                                                                    data: {
+                                                                        success: true,
+                                                                        msg: 'User Updated Successfully'
+                                                                    }
+                                                                });
                                                         }
                                                     });
                                             }
@@ -3110,9 +3255,13 @@ export function updateResourceNew(req, res) {
                                     .json({status: 200, data: {success: false, msg: err.errors[0].message}});
                             });
                     } else {
-                        resourceRole.create({resource_role_resource_id: user.resource_id, resource_role_role_id: roles.roleID, resource_role_status: true})
+                        resourceRole.create({
+                            resource_role_resource_id: user.resource_id,
+                            resource_role_role_id: roles.roleID,
+                            resource_role_status: true
+                        })
                             .then(() => {
-                                if(updateRoles.length - 1 === index) {
+                                if (updateRoles.length - 1 === index) {
                                     res.status(200)
                                         .json({status: 200, data: {success: true, msg: 'User Updated Successfully'}});
                                 }
@@ -3129,17 +3278,39 @@ export function updateResourceNew(req, res) {
             };
 
             // roles.roleID
-            userResource.findOne({where: {resource_client_id: req.authData.PM_Client_ID, resource_user_id: req.body.userId, resource_project_id: req.body.projectId, resource_user_role: roles.roleID}})
+            userResource.findOne({
+                where: {
+                    resource_client_id: req.authData.PM_Client_ID,
+                    resource_user_id: req.body.userId,
+                    resource_project_id: req.body.projectId,
+                    resource_user_role: roles.roleID
+                }
+            })
                 .then((userRes) => {
                     userResource.update(resource,
-                        {where: {resource_client_id: req.authData.PM_Client_ID, resource_user_id: req.body.userId, resource_project_id: req.body.projectId, resource_user_role: roles.roleID}})
+                        {
+                            where: {
+                                resource_client_id: req.authData.PM_Client_ID,
+                                resource_user_id: req.body.userId,
+                                resource_project_id: req.body.projectId,
+                                resource_user_role: roles.roleID
+                            }
+                        })
                         .then((results) => {
-                            if(results[0] === 1) {
-                                resourceRole.update({resource_role_status: 0}, {where: {resource_role_resource_id: userRes.resource_id, resource_role_role_id: roles.roleID}})
+                            if (results[0] === 1) {
+                                resourceRole.update({resource_role_status: 0}, {
+                                    where: {
+                                        resource_role_resource_id: userRes.resource_id,
+                                        resource_role_role_id: roles.roleID
+                                    }
+                                })
                                     .then(() => {
-                                        if(updateRoles.length - 1 === index) {
+                                        if (updateRoles.length - 1 === index) {
                                             res.status(200)
-                                                .json({status: 200, data: {success: true, msg: 'User Updated Successfully'}});
+                                                .json({
+                                                    status: 200,
+                                                    data: {success: true, msg: 'User Updated Successfully'}
+                                                });
                                         }
                                     });
                             } else {
@@ -3184,14 +3355,14 @@ export function updateResourceNew(req, res) {
 // in arr2[].
 function findMissing(arr1, arr2) {
     const arr = [];
-    for(let i = 0; i < arr1.length; i++) {
+    for (let i = 0; i < arr1.length; i++) {
         let j;
-        for(j = 0; j < arr2.length; j++) {
-            if(arr1[i] === arr2[j]) {
+        for (j = 0; j < arr2.length; j++) {
+            if (arr1[i] === arr2[j]) {
                 break;
             }
         }
-        if(j === arr2.length) {
+        if (j === arr2.length) {
             arr.push(arr1[i]);
         }
     }
@@ -3205,8 +3376,7 @@ export function getManagerUsers(req, res) {
             PM_User_Active: 1,
             PM_Client_ID: req.query.c,
         },
-        attributes:
-            ['PM_UserID', 'PM_User_Email_ID', 'PM_User_MobileNumber', 'PM_User_FullName'],
+        attributes: ['PM_UserID', 'PM_User_Email_ID', 'PM_User_MobileNumber', 'PM_User_FullName'],
         include: [
             {
                 model: userResource,
@@ -3217,13 +3387,13 @@ export function getManagerUsers(req, res) {
         raw: true,
     })
         .then((result) => {
-            if(result.length !== 0) {
+            if (result.length !== 0) {
                 const roles = [];
-                for(let i = 0; i < result.length; i += 1) {
-                    if(!roles.includes(result[i]['ResourceID.resource_user_role'])) {
+                for (let i = 0; i < result.length; i += 1) {
+                    if (!roles.includes(result[i]['ResourceID.resource_user_role'])) {
                         roles.push(result[i]['ResourceID.resource_user_role']);
                     }
-                    if(i === result.length - 1) {
+                    if (i === result.length - 1) {
                         return RolePermission.findAll({
                             where: {
                                 clientID: req.query.c,
@@ -3233,22 +3403,22 @@ export function getManagerUsers(req, res) {
                             },
                         })
                             .then((permission) => {
-                                if(permission.length !== 0) {
+                                if (permission.length !== 0) {
                                     const permissionRole = [];
-                                    for(let j = 0; j <= permission.length; j += 1) {
-                                        if(!permissionRole.includes(permission[j].roleID)) {
+                                    for (let j = 0; j <= permission.length; j += 1) {
+                                        if (!permissionRole.includes(permission[j].roleID)) {
                                             permissionRole.push(permission[j].roleID);
                                         }
-                                        if(j === permission.length - 1) {
+                                        if (j === permission.length - 1) {
                                             let managerUsers = [];
                                             // return res.json([ {permissionRole}, {result} ]);
-                                            for(let k = 0; k < result.length; k += 1) {
-                                                for(let l = 0; l < permissionRole.length; l += 1) {
-                                                    if(parseInt(result[k]['ResourceID.resource_user_role'], 10) === permissionRole[l]) {
+                                            for (let k = 0; k < result.length; k += 1) {
+                                                for (let l = 0; l < permissionRole.length; l += 1) {
+                                                    if (parseInt(result[k]['ResourceID.resource_user_role'], 10) === permissionRole[l]) {
                                                         managerUsers.push(result[k]);
                                                     }
                                                 }
-                                                if(k === result.length - 1) {
+                                                if (k === result.length - 1) {
                                                     managerUsers = _.uniqBy(managerUsers, 'PM_UserID');
                                                     return res.json(managerUsers);
                                                 }
@@ -3275,8 +3445,7 @@ export function getManagerUsersBacked(clientId, projectId) {
             PM_User_Active: 1,
             PM_Client_ID: clientId,
         },
-        attributes:
-            ['PM_UserID', 'PM_User_Email_ID', 'PM_User_MobileNumber', 'PM_User_FullName'],
+        attributes: ['PM_UserID', 'PM_User_Email_ID', 'PM_User_MobileNumber', 'PM_User_FullName'],
         include: [
             {
                 model: userResource,
@@ -3287,13 +3456,13 @@ export function getManagerUsersBacked(clientId, projectId) {
         raw: true,
     })
         .then((result) => {
-            if(result.length !== 0) {
+            if (result.length !== 0) {
                 const roles = [];
-                for(let i = 0; i < result.length; i += 1) {
-                    if(!roles.includes(result[i]['ResourceID.resource_user_role'])) {
+                for (let i = 0; i < result.length; i += 1) {
+                    if (!roles.includes(result[i]['ResourceID.resource_user_role'])) {
                         roles.push(result[i]['ResourceID.resource_user_role']);
                     }
-                    if(i === result.length - 1) {
+                    if (i === result.length - 1) {
                         RolePermission.findAll({
                             where: {
                                 clientID: clientId,
@@ -3303,22 +3472,22 @@ export function getManagerUsersBacked(clientId, projectId) {
                             },
                         })
                             .then((permission) => {
-                                if(permission.length !== 0) {
+                                if (permission.length !== 0) {
                                     const permissionRole = [];
-                                    for(let j = 0; j <= permission.length; j += 1) {
-                                        if(!permissionRole.includes(permission[j].roleID)) {
+                                    for (let j = 0; j <= permission.length; j += 1) {
+                                        if (!permissionRole.includes(permission[j].roleID)) {
                                             permissionRole.push(permission[j].roleID);
                                         }
-                                        if(j === permission.length - 1) {
+                                        if (j === permission.length - 1) {
                                             let managerUsers = [];
                                             // return res.json([ {permissionRole}, {result} ]);
-                                            for(let k = 0; k < result.length; k += 1) {
-                                                for(let l = 0; l < permissionRole.length; l += 1) {
-                                                    if(parseInt(result[k]['ResourceID.resource_user_role'], 10) === permissionRole[l]) {
+                                            for (let k = 0; k < result.length; k += 1) {
+                                                for (let l = 0; l < permissionRole.length; l += 1) {
+                                                    if (parseInt(result[k]['ResourceID.resource_user_role'], 10) === permissionRole[l]) {
                                                         managerUsers.push(result[k]);
                                                     }
                                                 }
-                                                if(k === result.length - 1) {
+                                                if (k === result.length - 1) {
                                                     managerUsers = _.uniqBy(managerUsers, 'PM_UserID');
                                                     resolve(managerUsers);
                                                 }
@@ -3343,11 +3512,11 @@ export function getManagerUsersBacked(clientId, projectId) {
 export function resourceByRole(req, res) {
     const projectId = parseInt(req.params.projectId, 10);
     const permissionID = parseInt(req.params.permissionID, 10);
-    if(isNaN(projectId) || isNaN(permissionID)) {
+    if (isNaN(projectId) || isNaN(permissionID)) {
         return res.json([{}]);
     }
     let likeCause = '';
-    if(req.query.q) {
+    if (req.query.q) {
         likeCause = req.query.q;
     }
 
@@ -3421,9 +3590,9 @@ export function resourceByRole(req, res) {
             roles = JSON.parse(roles);
             const Users = [];
             roles.forEach((user, index) => {
-                if(user.Role3 && user.Role3.resourceRole3) {
+                if (user.Role3 && user.Role3.resourceRole3) {
                     user.Role3.resourceRole3.forEach((resourceRole3) => {
-                        if(resourceRole3.userResource3 && resourceRole3.userResource3.RegisterUserResource && resourceRole3.userResource3.RegisterUserResource.User) {
+                        if (resourceRole3.userResource3 && resourceRole3.userResource3.RegisterUserResource && resourceRole3.userResource3.RegisterUserResource.User) {
                             resourceRole3.userResource3.RegisterUserResource.PM_User_Role = resourceRole3.userResource3.RegisterUserResource.User.map(userRole => userRole.UserRole1);
                             resourceRole3.userResource3.RegisterUserResource.role = [];
                             Users.push(resourceRole3.userResource3.RegisterUserResource);
@@ -3433,20 +3602,20 @@ export function resourceByRole(req, res) {
             });
             const UniqueUser = [];
             const map = new Map();
-            for(const item of Users) {
-                if(!map.has(item.PM_UserID)) {
+            for (const item of Users) {
+                if (!map.has(item.PM_UserID)) {
                     map.set(item.PM_UserID, true);
                     UniqueUser.push(item);
                 }
             }
             UniqueUser.forEach((uniqueUser) => {
                 roles.forEach((user) => {
-                    if(user.Role3 && user.Role3.resourceRole3) {
+                    if (user.Role3 && user.Role3.resourceRole3) {
                         user.Role3.resourceRole3.forEach((resourceRole3) => {
-                            if(resourceRole3.userResource3 && resourceRole3.userResource3.RegisterUserResource && resourceRole3.userResource3.RegisterUserResource.PM_User_Role) {
-                                if(Number(resourceRole3.userResource3.RegisterUserResource.PM_UserID) === Number(uniqueUser.PM_UserID)) {
-                                    for(let i = 0; i < uniqueUser.PM_User_Role.length; i += 1) {
-                                        if(Number(resourceRole3.userResource3.resource_user_role) === Number(uniqueUser.PM_User_Role[i].ID)) {
+                            if (resourceRole3.userResource3 && resourceRole3.userResource3.RegisterUserResource && resourceRole3.userResource3.RegisterUserResource.PM_User_Role) {
+                                if (Number(resourceRole3.userResource3.RegisterUserResource.PM_UserID) === Number(uniqueUser.PM_UserID)) {
+                                    for (let i = 0; i < uniqueUser.PM_User_Role.length; i += 1) {
+                                        if (Number(resourceRole3.userResource3.resource_user_role) === Number(uniqueUser.PM_User_Role[i].ID)) {
                                             uniqueUser.role.push(uniqueUser.PM_User_Role[i]);
                                         }
                                     }
@@ -3456,11 +3625,28 @@ export function resourceByRole(req, res) {
                     }
                 });
             });
-            if(UniqueUser.length > 0) {
+            if (UniqueUser.length > 0) {
                 getImageUrl(res, UniqueUser, 0, 'User_PP_Resource');
             } else {
                 res.send({status: 200, message: {success: false, data: 'No Resources'}});
             }
             // res.send({ status: 200, message: { success: true, data: UniqueUser } });
+        });
+}
+
+// Deletes a User from DB
+export function deleteUser(req, res) {
+    return RegisterUser.destroy({
+        where: {
+            PM_UserID: req.params.id
+        }
+    })
+        .then(() => {
+            res.status(200)
+                .send({success: true, msg: 'User Deleted Successfully'});
+        })
+        .catch(err => {
+            res.status(400)
+                .send({success: true, msg: err});
         });
 }
