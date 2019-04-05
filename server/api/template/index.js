@@ -8,7 +8,7 @@ var controller = require('./template.controller');
 var router = express.Router();
 
 router.get('/', controller.index);
-router.get('/:catagoryId', auth.isAuthenticated, controller.getTemplateByCatagory);
+router.get('/:categoryId', auth.isAuthenticated, controller.getTemplateByCategory);
 /* template New created*/
 router.post('/', auth.isAuthenticated, controller.createNewTemplate);
 router.put('/:id', controller.upsert);

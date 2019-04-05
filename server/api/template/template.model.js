@@ -16,7 +16,7 @@ export default function(sequelize, DataTypes) {
           type: DataTypes.JSON,
           allowNull: false,
       },
-      catagoryId: {
+      categoryId: {
           type: DataTypes.INTEGER,
           allowNull: false,
       },

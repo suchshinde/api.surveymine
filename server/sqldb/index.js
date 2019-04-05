@@ -45,7 +45,7 @@ db.NotificationsTemplates = db.sequelize.import('../api/notifications/notificati
 db.PermissionNotify = db.sequelize.import('../api/notifications/permissionNotify.model');
 db.SurveyResponse = db.sequelize.import('../api/survey-response/survey-response.model');
 db.TemplateMaster = db.sequelize.import('../api/template/template.model');
-db.CatagoryMaster = db.sequelize.import('../api/catagory/catagory.model');
+db.CategoryMaster = db.sequelize.import('../api/category/category.model');
 
 db.RegisterUser.hasMany(db.LoginSession, {as: 'UserID', foreignKey: 'UserID'});
 db.RegisterUser.hasMany(db.NotificationsScreen, {as: 'Notification', foreignKey: 'senderId'});

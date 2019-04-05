@@ -1,17 +1,17 @@
 /**
  * Using Rails-like standard naming convention for endpoints.
- * GET     /api/catagorys              ->  index
- * POST    /api/catagorys              ->  create
- * GET     /api/catagorys/:id          ->  show
- * PUT     /api/catagorys/:id          ->  upsert
- * PATCH   /api/catagorys/:id          ->  patch
- * DELETE  /api/catagorys/:id          ->  destroy
+ * GET     /api/categorys              ->  index
+ * POST    /api/categorys              ->  create
+ * GET     /api/categorys/:id          ->  show
+ * PUT     /api/categorys/:id          ->  upsert
+ * PATCH   /api/categorys/:id          ->  patch
+ * DELETE  /api/categorys/:id          ->  destroy
  */
 
 'use strict';
 
 import jsonpatch from 'fast-json-patch';
-import {CatagoryMaster} from '../../sqldb';
+import {CategoryMaster} from '../../sqldb';
 import {logger} from '../../components/logger';
 
 function respondWithResult(res, statusCode) {
@@ -66,9 +66,9 @@ function handleError(res, statusCode) {
 }
 
 // Gets a list of Catagorys
-export function getCatagoryList(req, res) {
-    CatagoryMaster.findAll({
-            attributes: ['Id', 'catagoryName']
+export function getCategoryList(req, res) {
+    CategoryMaster.findAll({
+            attributes: ['Id', 'categoryName']
         },
     )
         .then((obj) => {
@@ -84,7 +84,7 @@ export function getCatagoryList(req, res) {
 
 // Gets a single Catagory from the DB
 export function show(req, res) {
-    return CatagoryMaster.find({
+    return CategoryMaster.find({
         where: {
             _id: req.params.id
         }
@@ -95,14 +95,14 @@ export function show(req, res) {
 }
 
 // Creates a new Catagory in the DB
-export function addCatagory(req, res) {
+export function addCategory(req, res) {
     // const creator = req.authData.PM_UserID;
 
     let msg = 'Catagory already exist.';
     const clientId = req.authData.PM_Client_ID;
-    CatagoryMaster.findOne({
+    CategoryMaster.findOne({
         where: {
-            catagoryName: req.body.catagoryName
+            categoryName: req.body.categoryName
         }
     })
         .then((result) => {
@@ -111,7 +111,7 @@ export function addCatagory(req, res) {
                     reject(msg);
                 });
             } else {
-                return saveCatagory(req.body, clientId, req.authData.PM_UserID);
+                return saveCategory(req.body, clientId, req.authData.PM_UserID);
             }
         })
         .then((data) => {
@@ -145,7 +145,7 @@ export function patch(req, res) {
     if (req.body._id) {
         Reflect.deleteProperty(req.body, '_id');
     }
-    return CatagoryMaster.find({
+    return CategoryMaster.find({
         where: {
             _id: req.params.id
         }
@@ -157,11 +157,11 @@ export function patch(req, res) {
 }
 
 // Deletes a Catagory from the DB
-// export function deleteCatagory(req, res) {
+// export function deleteCategory(req, res) {
 //     console.log('requestttt', req.params.id);
 //     return CatagoryMaster.destroy({
 //         where: {
-//             catagoryId: req.params.id
+//             categoryId: req.params.id
 //         }
 //     })
 //         .then(() => {
@@ -182,13 +182,13 @@ export function patch(req, res) {
 //     //   .catch(handleError(res));
 // }
 
-// Update Existing catagory
-export function updateCatagory(req, res) {
+// Update Existing category
+export function updateCategory(req, res) {
      const clientId = req.authData.PM_Client_ID;
      const msg = 'Catagory name already exist.';
-    CatagoryMaster.findOne({
+    CategoryMaster.findOne({
         where: {
-            catagoryName: req.body.catagoryName,
+            categoryName: req.body.categoryName,
             clientId
         }
     })
@@ -198,7 +198,7 @@ export function updateCatagory(req, res) {
                     reject(msg);
                 });
             } else {
-                return updateCatagoryName(req.body, clientId, req.authData.PM_UserID);
+                return updateCategoryName(req.body, clientId, req.authData.PM_UserID);
             }
         })
         .then(() => {
@@ -212,15 +212,15 @@ export function updateCatagory(req, res) {
 }
 
 
-function saveCatagory(userObj, clientId, UserId) {
+function saveCategory(userObj, clientId, UserId) {
     return new Promise((resolve, reject) => {
         const post = {
             clientId,
-            catagoryName: userObj.catagoryName,
+            categoryName: userObj.categoryName,
             createdBy: UserId,
             createdAt: new Date().toString()
         };
-        CatagoryMaster.create(post)
+        CategoryMaster.create(post)
             .then((x) => {
                 resolve(x);
             })
@@ -234,16 +234,16 @@ function saveCatagory(userObj, clientId, UserId) {
     });
 }
 
-function updateCatagoryName(userObj, clientId, UserId) {
+function updateCategoryName(userObj, clientId, UserId) {
     return new Promise((resolve, reject) => {
         const post = {
             clientId,
-            catagoryName: userObj.catagoryName,
+            categoryName: userObj.categoryName,
             createdBy: UserId,
             createdAt: new Date().toString()
         };
 
-        CatagoryMaster.update(post, {
+        CategoryMaster.update(post, {
             where: {
                 Id: userObj.Id
             }

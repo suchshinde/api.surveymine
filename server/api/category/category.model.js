@@ -1,14 +1,14 @@
 'use strict';
 
 export default function(sequelize, DataTypes) {
-  return sequelize.define('CatagoryMaster', {
+  return sequelize.define('CategoryMaster', {
     Id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
     },
-      catagoryName: {
+      categoryName: {
           type: DataTypes.STRING,
           allowNull: false,
       },

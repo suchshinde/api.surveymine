@@ -73,10 +73,10 @@ export function index(req, res) {
 }
 
 // Gets a single Template from the DB
-export function getTemplateByCatagory(req, res) {
+export function getTemplateByCategory(req, res) {
     const condition = {
         where: {
-            catagoryId: req.params.catagoryId }
+            categoryId: req.params.categoryId }
     };
      TemplateMaster.findAll(condition)
       .then((templateResult) => res.json({status: true, msg: 'Template List', data: templateResult}))
@@ -93,7 +93,7 @@ export function createNewTemplate(req, res) {
     TemplateMaster.findOne({
         where: {
             templateName: req.body.templateName,
-            catagoryId: req.body.catagoryId
+            categoryId: req.body.categoryId
         }
     })
         .then((result) => {
@@ -174,7 +174,7 @@ function saveTemplate(userObj, clientId) {
             clientId,
             templateName: userObj.templateName,
             template: userObj.template,
-            catagoryId: userObj.catagoryId,
+            categoryId: userObj.categoryId,
             createdBy: userObj.createdBy,
             templateDescr: userObj.templateDescr,
             createdAt: new Date().toString()
