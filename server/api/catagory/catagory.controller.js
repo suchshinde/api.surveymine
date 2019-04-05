@@ -183,60 +183,33 @@ export function patch(req, res) {
 // }
 
 // Update Existing catagory
-// export function updateCatagory(req, res) {
-//     console.log(req.authData);
-//     // const clientId = req.authData.PM_Client_ID;
-//     // const surveyName = req.body.surveyName;
-//     // const creator = req.authData.PM_UserID;
-//     // const isdraftUpdate = req.body.draftUpdate;
-//     const bodyForImage = {
-//
-//         clientId: req.authData.PM_Client_ID,
-//         imageData: req.body.imageData,
-//         whichImage: 'ProjectLogo',
-//     };
-//     console.log('clientId', req.body, clientId);
-//
-//     Survey.findOne({
-//         where: {
-//             surveyName: req.body.surveyName,
-//             clientId
-//         }
-//     })
-//         .then((result) => {
-//             if (result && isdraftUpdate) {
-//                 return res.status(400)
-//                     .json({
-//                         success: false,
-//                         message: 'Draft with same name already exist. Please change draft name or create new one.'
-//                     });
-//             }
-//             if (isdraftUpdate) {
-//                 req.body.createdBy = creator;
-//                 return updateDraft(req.body, clientId, 'Draft');
-//             }
-//             else {
-//                 console.log('eeeeeeeeeeee');
-//
-//                 req.body.createdBy = creator;
-//                 return surveyAdd(req.body, clientId, 'Draft');
-//             }
-//         })
-//         .then(() => {
-//             if(isdraftUpdate) {
-//                 res.status(200)
-//                     .send({success: true, msg: 'Draft Updated Successfully'});
-//             }
-//             else {
-//                 res.status(200)
-//                     .send({success: true, msg: 'Survey Saved as Draft Successfully'});
-//             }
-//         })
-//         .catch(err => {
-//             res.status(400)
-//                 .send({success: true, msg: err});
-//         });
-// }
+export function updateCatagory(req, res) {
+     const clientId = req.authData.PM_Client_ID;
+     const msg = 'Catagory name already exist.';
+    CatagoryMaster.findOne({
+        where: {
+            catagoryName: req.body.catagoryName,
+            clientId
+        }
+    })
+        .then((result) => {
+            if(result) {
+                return new Promise((resolve, reject) => {
+                    reject(msg);
+                });
+            } else {
+                return updateCatagoryName(req.body, clientId, req.authData.PM_UserID);
+            }
+        })
+        .then(() => {
+            res.status(200)
+                .send({success: true, msg: 'Catagory Updated Successfully'});
+        })
+        .catch(err => {
+            res.status(400)
+                .send({success: true, msg: err});
+        });
+}
 
 
 function saveCatagory(userObj, clientId, UserId) {
@@ -248,6 +221,33 @@ function saveCatagory(userObj, clientId, UserId) {
             createdAt: new Date().toString()
         };
         CatagoryMaster.create(post)
+            .then((x) => {
+                resolve(x);
+            })
+            .catch((err) => {
+                logger.error({
+                    msg: 'Unauthorised',
+                    error: err,
+                });
+                reject(err);
+            });
+    });
+}
+
+function updateCatagoryName(userObj, clientId, UserId) {
+    return new Promise((resolve, reject) => {
+        const post = {
+            clientId,
+            catagoryName: userObj.catagoryName,
+            createdBy: UserId,
+            createdAt: new Date().toString()
+        };
+
+        CatagoryMaster.update(post, {
+            where: {
+                Id: userObj.Id
+            }
+        })
             .then((x) => {
                 resolve(x);
             })

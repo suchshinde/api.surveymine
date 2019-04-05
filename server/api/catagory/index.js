@@ -12,6 +12,6 @@ router.post('/', auth.isAuthenticated, controller.addCatagory);
 router.put('/:id', controller.upsert);
 router.patch('/:id', controller.patch);
 // router.delete('/:id', auth.isAuthenticated, controller.deleteCatagory);
- // router.post('/catagory', auth.isAuthenticated, controller.updateCatagory)
+router.post('/:catagoryId', auth.isAuthenticated, controller.updateCatagory);
 
 module.exports = router;
