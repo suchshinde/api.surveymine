@@ -1,4 +1,4 @@
-import * as auth from "../../auth/auth.service";
+import * as auth from '../../auth/auth.service';
 
 var express = require('express');
 var controller = require('./survey-response.controller');
