@@ -157,15 +157,22 @@ export function patch(req, res) {
 }
 
 // Deletes a Template from the DB
-export function destroy(req, res) {
-  return TemplateMaster.find({
+export function deleteTemplate(req, res) {
+  return TemplateMaster.destroy({
     where: {
-      _id: req.params.id
+        templateName: req.body.templateName,
+        _Id: req.params._Id
+      // _id: req.params.id
     }
   })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
+      .then(() => {
+          res.status(200)
+          .send({success: true, msg: 'Template Deleted Successfully'});
+      })
+      .catch(err => {
+          res.status(400)
+              .send({success: true, msg: err});
+      });
 }
 
 function saveTemplate(userObj, clientId) {

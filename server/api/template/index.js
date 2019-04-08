@@ -13,7 +13,7 @@ router.get('/:categoryId', auth.isAuthenticated, controller.getTemplateByCategor
 router.post('/', auth.isAuthenticated, controller.createNewTemplate);
 router.put('/:id', controller.upsert);
 router.patch('/:id', controller.patch);
-router.delete('/:id', controller.destroy);
+router.post('/:_Id', auth.isAuthenticated, controller.deleteTemplate);
 
 // router.post('/', auth.isAuthenticated, controller.createSurvey);
 
