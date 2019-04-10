@@ -9,7 +9,7 @@ export function createNewQuestionBank(req, res, clientId) {
     console.log('REQ===', req.body)
     const creator = req.authData.PM_UserID;
     // console.log('QbAdd', post);
-    const questionArray = JSON.parse(req.body.question);
+    const questionArray = req.body.question;
     console.log('QUESARRAY', questionArray.questionData);
     var qType = [];
     var sepQuestion = [];
