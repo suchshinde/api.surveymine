@@ -45,7 +45,8 @@ db.NotificationsTemplates = db.sequelize.import('../api/notifications/notificati
 db.PermissionNotify = db.sequelize.import('../api/notifications/permissionNotify.model');
 db.SurveyResponse = db.sequelize.import('../api/survey-response/survey-response.model');
 db.TemplateMaster = db.sequelize.import('../api/template/template.model');
-db.CategoryMaster = db.sequelize.import('../api/category/category.model');
+db.TemplateCategoryMaster = db.sequelize.import('../api/category/category.model');
+db.QuestionCategoryMaster = db.sequelize.import('../api/questioncategory/questioncategory.model');
 db.SurveyIdGenerator = db.sequelize.import('../api/surveyid-generator/surveyid-generator.model');
 db.QuestionBankMaster = db.sequelize.import('../api/questionbank/questionbank.model');
 

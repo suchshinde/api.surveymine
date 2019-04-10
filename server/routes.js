@@ -10,6 +10,7 @@ export default function(app) {
     app.use('/api/surveyid-generator', require('./api/surveyid-generator'));
     app.use('/api/questionbank', require('./api/questionbank'));
     app.use('/api/categorys', require('./api/category'));
+    app.use('/api/questioncategory', require('./api/questioncategory'));
     app.use('/api/templates', require('./api/template'));
     app.use('/api/surveyresponse', require('./api/survey-response'));
     app.use('/api/surveyuser', require('./api/survey-user'));

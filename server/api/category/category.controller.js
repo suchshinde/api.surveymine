@@ -11,7 +11,7 @@
 'use strict';
 
 import jsonpatch from 'fast-json-patch';
-import {CategoryMaster} from '../../sqldb';
+import {TemplateCategoryMaster} from '../../sqldb';
 import {logger} from '../../components/logger';
 
 function respondWithResult(res, statusCode) {
@@ -67,7 +67,7 @@ function handleError(res, statusCode) {
 
 // Gets a list of Catagorys
 export function getCategoryList(req, res) {
-    CategoryMaster.findAll({
+    TemplateCategoryMaster.findAll({
             attributes: ['Id', 'categoryName']
         },
     )
@@ -84,7 +84,7 @@ export function getCategoryList(req, res) {
 
 // Gets a single Catagory from the DB
 export function show(req, res) {
-    return CategoryMaster.find({
+    return TemplateCategoryMaster.find({
         where: {
             _id: req.params.id
         }
@@ -100,7 +100,7 @@ export function addCategory(req, res) {
 
     let msg = 'Catagory already exist.';
     const clientId = req.authData.PM_Client_ID;
-    CategoryMaster.findOne({
+    TemplateCategoryMaster.findOne({
         where: {
             categoryName: req.body.categoryName
         }
@@ -145,7 +145,7 @@ export function patch(req, res) {
     if (req.body._id) {
         Reflect.deleteProperty(req.body, '_id');
     }
-    return CategoryMaster.find({
+    return TemplateCategoryMaster.find({
         where: {
             _id: req.params.id
         }
@@ -186,7 +186,7 @@ export function patch(req, res) {
 export function updateCategory(req, res) {
      const clientId = req.authData.PM_Client_ID;
      const msg = 'Catagory name already exist.';
-    CategoryMaster.findOne({
+    TemplateCategoryMaster.findOne({
         where: {
             categoryName: req.body.categoryName,
             clientId
@@ -220,7 +220,7 @@ function saveCategory(userObj, clientId, UserId) {
             createdBy: UserId,
             createdAt: new Date().toString()
         };
-        CategoryMaster.create(post)
+        TemplateCategoryMaster.create(post)
             .then((x) => {
                 resolve(x);
             })
@@ -243,7 +243,7 @@ function updateCategoryName(userObj, clientId, UserId) {
             createdAt: new Date().toString()
         };
 
-        CategoryMaster.update(post, {
+        TemplateCategoryMaster.update(post, {
             where: {
                 Id: userObj.Id
             }
