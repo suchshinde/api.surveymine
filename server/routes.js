@@ -7,6 +7,7 @@ import path from 'path';
 
 export default function(app) {
     // Insert routes below
+    app.use('/api/translate', require('./api/translate'));
     app.use('/api/surveyid-generator', require('./api/surveyid-generator'));
     app.use('/api/questionbank', require('./api/questionbank'));
     app.use('/api/categorys', require('./api/category'));

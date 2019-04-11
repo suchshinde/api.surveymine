@@ -724,7 +724,7 @@ export function index(req, res) {
     console.log('condition',RegisterUser);
     RegisterUser.findOne(condition)
         .then((userObj) => {
-            // console.log('amit user found',userObj)
+             console.log('amit user found',userObj)
             // project will be the first entry of the Projects table with the title 'aProject' || null
             if(userObj) {
                 // const key1 = crypto.createDecipher(process.env.CRYPTO_ALGO, process.env.CRYPTO_SECKERT_KEY);// abc secret key
