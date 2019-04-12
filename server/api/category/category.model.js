@@ -1,7 +1,7 @@
 'use strict';
 
 export default function(sequelize, DataTypes) {
-  return sequelize.define('CategoryMaster', {
+  return sequelize.define('TemplateCategoryMaster', {
     Id: {
       type: DataTypes.INTEGER,
       allowNull: false,
